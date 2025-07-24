@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Web Luyện Thi{% endblock %}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: #f4f4f9; }
+        nav { background: #ffffff; color: #333; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        nav .logo a { color: #333; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
+        nav .nav-links a { color: #555; text-decoration: none; margin: 0 15px; }
+        nav .nav-links .button { background-color: #5d5dff; color: white; padding: 8px 15px; border-radius: 5px; }
+        .main-content { max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <a href="{% url 'home' %}">LuyệnThi</a>
+        </div>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <span>Chào, {{ user.username }}!</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 15px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; color:#5d5dff; cursor:pointer; padding:0; text-decoration: underline; font: inherit;">
+                        Đăng xuất
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Đăng nhập</a>
+                <a href="{% url 'register' %}" class="button">Đăng ký</a>
+            {% endif %}
+        </div>
+    </nav>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

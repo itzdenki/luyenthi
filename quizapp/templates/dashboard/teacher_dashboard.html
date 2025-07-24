@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Giáo viên{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .btn-create {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .exam-list {
+        list-style: none;
+        padding: 0;
+    }
+    .exam-item {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .exam-item h3 {
+        margin: 0;
+    }
+    .exam-actions a {
+        margin-left: 10px;
+        text-decoration: none;
+    }
+</style>
+
+<div class="dashboard-header">
+    <h2>Các bài thi của bạn</h2>
+    <a href="#" class="btn-create">Tạo bài thi mới</a>
+</div>
+
+{% if exams %}
+    <ul class="exam-list">
+        {% for exam in exams %}
+            <li class="exam-item">
+                <div>
+                    <h3>{{ exam.title }}</h3>
+                    <small>Tạo ngày: {{ exam.created_at|date:"d/m/Y" }}</small>
+                </div>
+                <div class="exam-actions">
+                    <a href="#">Xem chi tiết</a>
+                    <a href="#">Sửa</a>
+                    <a href="#" style="color: red;">Xóa</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Bạn chưa tạo bài thi nào. Hãy bắt đầu <a href="#">tạo bài thi mới</a>!</p>
+{% endif %}
+
+{% endblock %}

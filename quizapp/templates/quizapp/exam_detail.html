@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ exam.title }}</title>
+    <style>body { font-family: sans-serif; padding: 20px; } .question { margin-bottom: 20px; }</style>
+</head>
+<body>
+    <h1>{{ exam.title }}</h1>
+    <p>Hãy chọn đáp án đúng cho các câu hỏi dưới đây.</p>
+
+    <form action="{% url 'submit_exam' exam.id %}" method="post">
+        {% csrf_token %}
+        {% for question in exam.question_set.all %}
+            <div class="question">
+                <h4>{{ forloop.counter }}. {{ question.text }}</h4>
+                {% for choice in question.choice_set.all %}
+                    <div>
+                        <input type="radio" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" required>
+                        <label for="choice{{ choice.id }}">{{ choice.text }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit">Nộp bài</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+    <style>
+        .form-container { display: flex; flex-direction: column; }
+        .form-container p { margin-bottom: 15px; }
+        .form-container label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-container input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-container button { background-color: #5d5dff; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .form-container button:hover { background-color: #4a4ad8; }
+    </style>
+
+    <h2>Đăng nhập</h2>
+    <form class="form-container" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Đăng nhập</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Trang Chủ{% endblock %}
+
+{% block content %}
+    <h1>Chào mừng đến với Web Luyện Thi!</h1>
+    {% if user.is_authenticated %}
+        <p>Bạn đã đăng nhập thành công.</p>
+    {% else %}
+        <p>Vui lòng đăng nhập hoặc đăng ký để tiếp tục.</p>
+    {% endif %}
+{% endblock %}
