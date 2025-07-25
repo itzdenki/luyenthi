@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<style>
+    .form-container { max-width: 800px; margin: auto; }
+    .form-section { margin-bottom: 20px; }
+    .form-section label { display: block; margin-bottom: 8px; font-weight: 500; }
+    .form-section input, .form-section textarea, .form-section select {
+        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    }
+    .formset-wrapper {
+        margin-top: 25px; padding: 20px; border-top: 1px solid #eee; border: 1px solid #ddd; border-radius: 5px;
+        display: none; /* Ẩn tất cả các formset ban đầu */
+    }
+    .formset-form { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+    .formset-form .form-field { flex-grow: 1; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; }
+    .btn { padding: 10px 20px; border: none; border-radius: 5px; color: white; text-decoration: none; cursor: pointer; }
+    .btn-submit { background-color: #28a745; }
+    .btn-cancel { background-color: #6c757d; }
+    .btn-add-form { background-color: #007bff; font-size: 14px; padding: 8px 12px; margin-top: 10px; }
+    .delete-checkbox label { font-size: 0.9em; margin-left: 5px; color: #dc3545; }
+</style>
+
+<div class="form-container">
+    <h2>{{ page_title }}</h2>
+    <p>Bài thi: <strong>{{ exam.title }}</strong></p>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Form chính cho Question -->
+        <div class="form-section">
+            {{ form.as_p }}
+        </div>
+
+        <!-- Formset cho Choices (Trắc nghiệm, Đúng/Sai, Điền khuyết) -->
+        <div id="choices-formset-wrapper" class="formset-wrapper">
+            <h4>Các lựa chọn / Đáp án</h4>
+            {{ choice_formset.management_form }}
+            <div class="formset-forms-container">
+                {% for form in choice_formset %}
+                    <div class="formset-form">
+                        {{ form.id }}
+                        <div class="form-field">{{ form.text }}</div>
+                        <div class="form-field" style="display: flex; align-items: center; gap: 5px;">{{ form.is_correct }} <label for="{{ form.is_correct.id_for_label }}">Là đáp án đúng?</label></div>
+                        {% if form.instance.pk and choice_formset.can_delete %}
+                            <div class="delete-checkbox">{{ form.DELETE }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-add-form" data-formset-prefix="choices">Thêm lựa chọn</button>
+        </div>
+
+        <!-- Formset cho MatchPairs (Ghép đôi) -->
+        <div id="matches-formset-wrapper" class="formset-wrapper">
+            <h4>Các cặp để ghép</h4>
+            {{ match_formset.management_form }}
+            <div class="formset-forms-container">
+                {% for form in match_formset %}
+                    <div class="formset-form">
+                        {{ form.id }}
+                        <div class="form-field">{{ form.prompt }}</div>
+                        <div class="form-field">{{ form.answer }}</div>
+                        {% if form.instance.pk and match_formset.can_delete %}
+                            <div class="delete-checkbox">{{ form.DELETE }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-add-form" data-formset-prefix="matches">Thêm cặp</button>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn btn-cancel">Hủy bỏ</a>
+            <button type="submit" class="btn btn-submit">Lưu câu hỏi</button>
+        </div>
+    </form>
+</div>
+
+<!-- Các template trống để JavaScript clone -->
+<div id="empty-form-choices" style="display: none;">
+    <div class="formset-form">
+        <div class="form-field">{{ choice_formset.empty_form.text }}</div>
+        <div class="form-field" style="display: flex; align-items: center; gap: 5px;">{{ choice_formset.empty_form.is_correct }} <label for="{{ choice_formset.empty_form.is_correct.id_for_label }}">Là đáp án đúng?</label></div>
+    </div>
+</div>
+<div id="empty-form-matches" style="display: none;">
+     <div class="formset-form">
+        <div class="form-field">{{ match_formset.empty_form.prompt }}</div>
+        <div class="form-field">{{ match_formset.empty_form.answer }}</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionTypeSelect = document.getElementById('id_question_type');
+    const choiceFormsetWrapper = document.getElementById('choices-formset-wrapper');
+    const matchFormsetWrapper = document.getElementById('matches-formset-wrapper');
+
+    function toggleFormsets() {
+        const selectedType = questionTypeSelect.value;
+        
+        choiceFormsetWrapper.style.display = 'none';
+        matchFormsetWrapper.style.display = 'none';
+
+        if (['SINGLE', 'MULTIPLE', 'TRUE_FALSE', 'FILL_IN_BLANK'].includes(selectedType)) {
+            choiceFormsetWrapper.style.display = 'block';
+        } else if (selectedType === 'MATCHING') {
+            matchFormsetWrapper.style.display = 'block';
+        }
+    }
+
+    questionTypeSelect.addEventListener('change', toggleFormsets);
+    toggleFormsets();
+
+    document.querySelectorAll('.btn-add-form').forEach(button => {
+        button.addEventListener('click', function() {
+            const prefix = this.dataset.formsetPrefix;
+            const formsetContainer = this.previousElementSibling;
+            const totalFormsInput = document.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`);
+            const emptyFormTemplate = document.getElementById(`empty-form-${prefix}`).innerHTML;
+            
+            let formNum = parseInt(totalFormsInput.value);
+            const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formNum);
+            
+            const newDiv = document.createElement('div');
+            newDiv.innerHTML = newFormHtml;
+            // Thêm class 'formset-form' vào div mới để đảm bảo style được áp dụng
+            const newFormInnerDiv = newDiv.querySelector('.formset-form');
+            if (newFormInnerDiv) {
+                 formsetContainer.append(newFormInnerDiv);
+            } else {
+                 formsetContainer.insertAdjacentHTML('beforeend', newFormHtml);
+            }
+            
+            totalFormsInput.value = formNum + 1;
+        });
+    });
+});
+</script>
+{% endblock %}

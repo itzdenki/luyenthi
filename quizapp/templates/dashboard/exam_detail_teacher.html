@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết: {{ exam.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .btn {
+        background-color: #5d5dff;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .question-list {
+        list-style: none;
+        padding: 0;
+    }
+    .question-item {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .question-info {
+        flex-grow: 1;
+    }
+    .question-info .question-text {
+        font-weight: bold;
+        margin: 0 0 5px 0;
+    }
+    .question-info .question-meta {
+        font-size: 0.9em;
+        color: #666;
+    }
+    .question-actions {
+        display: flex;
+        flex-shrink: 0;
+        margin-left: 20px;
+    }
+    .question-actions a {
+        margin-left: 10px;
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .action-edit { background-color: #ffc107; color: #212529; }
+    .action-delete { background-color: #dc3545; color: white; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2>{{ exam.title }}</h2>
+        <p>{{ exam.description|default:"Không có mô tả." }}</p>
+    </div>
+    <a href="{% url 'question_create' exam_pk=exam.pk %}" class="btn">Thêm câu hỏi mới</a>
+</div>
+
+<h4>Danh sách câu hỏi</h4>
+
+{% if questions %}
+    <ul class="question-list">
+        {% for question in questions %}
+            <li class="question-item">
+                <div class="question-info">
+                    <p class="question-text">{{ question.order }}. {{ question.text|truncatewords:30 }}</p>
+                    <p class="question-meta">Loại: {{ question.get_question_type_display }}</p>
+                </div>
+                <div class="question-actions">
+                    <a href="{% url 'question_update' exam_pk=exam.pk question_pk=question.pk %}" class="action-edit">Sửa</a>
+                    
+                    <a href="{% url 'question_delete' exam_pk=exam.pk pk=question.pk %}" class="action-delete">Xóa</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Chưa có câu hỏi nào trong bài thi này. Hãy bắt đầu bằng việc <a href="{% url 'question_create' exam_pk=exam.pk %}">thêm câu hỏi mới</a>.</p>
+{% endif %}
+
+<a href="{% url 'teacher_dashboard' %}" style="margin-top: 20px; display: inline-block;">&larr; Quay lại Bảng điều khiển</a>
+
+{% endblock %}

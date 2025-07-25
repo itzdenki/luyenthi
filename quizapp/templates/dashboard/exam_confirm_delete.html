@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Xác nhận xóa{% endblock %}
+
+{% block content %}
+<style>
+    .confirm-container { text-align: center; max-width: 500px; margin: auto; }
+    .confirm-actions { margin-top: 20px; }
+    .btn { padding: 10px 20px; border: none; border-radius: 5px; color: white; text-decoration: none; cursor: pointer; margin: 0 10px; }
+    .btn-danger { background-color: #dc3545; }
+    .btn-secondary { background-color: #6c757d; }
+</style>
+
+<div class="confirm-container">
+    <h2>Bạn có chắc chắn không?</h2>
+    <p>Bạn đang chuẩn bị xóa bài thi: <strong>"{{ object.title }}"</strong>.</p>
+    <p>Hành động này không thể hoàn tác. Tất cả các câu hỏi và kết quả liên quan cũng sẽ bị xóa.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="confirm-actions">
+            <button type="submit" class="btn btn-danger">Vâng, Xóa!</button>
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">Hủy bỏ</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

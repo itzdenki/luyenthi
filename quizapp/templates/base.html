@@ -3,24 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Web Luyện Thi{% endblock %}</title>
+    
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: #f4f4f9; }
         nav { background: #ffffff; color: #333; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
         nav .logo a { color: #333; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
-        nav .nav-links a { color: #555; text-decoration: none; margin: 0 15px; }
+        nav .nav-links a, nav .nav-links span { color: #555; text-decoration: none; margin: 0 10px; vertical-align: middle; }
         nav .nav-links .button { background-color: #5d5dff; color: white; padding: 8px 15px; border-radius: 5px; }
+        .nav-links form { display: inline; margin-left: 10px; vertical-align: middle; }
         .main-content { max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     </style>
+
+    <!-- ======================================================= -->
+    <!-- TÍCH HỢP MATHJAX -->
+    <!-- Script này sẽ tự động tìm và render các công thức LaTeX -->
+    <!-- ======================================================= -->
+    <script>
+        // Cấu hình cơ bản cho MathJax
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // Dùng $...$ cho công thức inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']] // Dùng $$...$$ cho công thức hiển thị riêng dòng
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <!-- ======================================================= -->
+
 </head>
 <body>
     <nav>
         <div class="logo">
-            <a href="{% url 'home' %}">LuyệnThi</a>
+            <a href="{% url 'home' %}">Fuck TSA</a>
         </div>
         <div class="nav-links">
             {% if user.is_authenticated %}
+                
+                <!-- Hiển thị nút điều hướng dựa trên vai trò người dùng -->
+                {% if user.role == 'TEACHER' %}
+                    <a href="{% url 'teacher_dashboard' %}" class="button">Bảng điều khiển</a>
+                {% elif user.role == 'STUDENT' %}
+                    <a href="{% url 'student_exam_list' %}" class="button">Danh sách bài thi</a>
+                {% endif %}
+
                 <span>Chào, {{ user.username }}!</span>
-                <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 15px;">
+                <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" style="background:none; border:none; color:#5d5dff; cursor:pointer; padding:0; text-decoration: underline; font: inherit;">
                         Đăng xuất

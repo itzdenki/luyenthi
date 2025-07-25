@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Danh sách bài thi{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    .page-header h2 {
+        font-size: 1.8em;
+        color: #333;
+    }
+    .exam-list {
+        list-style: none;
+        padding: 0;
+    }
+    .exam-item {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .exam-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .exam-info h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.4em;
+        color: #0056b3;
+    }
+    .exam-info p {
+        margin: 0 0 10px 0;
+        color: #555;
+        font-size: 1em;
+        line-height: 1.5;
+    }
+    .exam-info small {
+        color: #888;
+        font-size: 0.85em;
+    }
+    .btn-start {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 500;
+        white-space: nowrap; /* Ngăn nút bị xuống dòng */
+        transition: background 0.3s;
+    }
+    .btn-start:hover {
+        background: linear-gradient(45deg, #0056b3, #007bff);
+    }
+    .no-exams {
+        text-align: center;
+        padding: 50px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="page-header">
+    <h2>Chọn một bài thi để bắt đầu</h2>
+</div>
+
+{% if exams %}
+    <ul class="exam-list">
+        {% for exam in exams %}
+            <li class="exam-item">
+                <div class="exam-info">
+                    <h3>{{ exam.title }}</h3>
+                    <p>{{ exam.description|default:"Không có mô tả."|truncatewords:25 }}</p>
+                    <small>Người tạo: {{ exam.owner.username }} | Ngày tạo: {{ exam.created_at|date:"d/m/Y" }}</small>
+                </div>
+                <div>
+                    <a href="{% url 'student_exam_take' pk=exam.pk %}" class="btn-start">Vào thi</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="no-exams">
+        <p>Hiện tại chưa có bài thi nào được giao.</p>
+        <p>Vui lòng quay lại sau!</p>
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Kết quả bài thi{% endblock %}
+
+{% block content %}
+<style>
+    .result-container { text-align: center; }
+    .score { font-size: 3em; font-weight: bold; color: #28a745; }
+    .details { margin: 20px 0; }
+</style>
+
+<div class="result-container">
+    <h2>Kết quả bài thi: {{ result.exam.title }}</h2>
+    <p class="details">Bạn đã hoàn thành bài thi vào lúc {{ result.submitted_at|date:"H:i, d/m/Y" }}</p>
+    <p>Điểm số của bạn là:</p>
+    <p class="score">{{ result.score }} / {{ result.total }}</p>
+    <a href="{% url 'student_exam_list' %}" class="btn btn-primary" style="background-color: #007bff;">Làm bài thi khác</a>
+</div>
+{% endblock %}
