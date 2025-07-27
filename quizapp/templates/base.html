@@ -2,70 +2,257 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Web Luyện Thi{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Luyện Thi Pro{% endblock %}</title>
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: #f4f4f9; }
-        nav { background: #ffffff; color: #333; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
-        nav .logo a { color: #333; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
-        nav .nav-links a, nav .nav-links span { color: #555; text-decoration: none; margin: 0 10px; vertical-align: middle; }
-        nav .nav-links .button { background-color: #5d5dff; color: white; padding: 8px 15px; border-radius: 5px; }
-        .nav-links form { display: inline; margin-left: 10px; vertical-align: middle; }
-        .main-content { max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        /* --- Bảng màu và Cấu hình Giao diện --- */
+        :root {
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            /* Bảng màu cho Chế độ Sáng (Light Mode) */
+            --bg-primary: #F9FAFB;
+            --bg-surface: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --accent: #3B82F6;
+            --cta: #F97316;
+            --border: #E5E7EB;
+            --error: #DC2626;
+            --success: #10B981;
+        }
+
+        html[data-theme='dark'] {
+            /* Bảng màu cho Chế độ Tối (Dark Mode) */
+            --bg-primary: #1E1E2F;
+            --bg-surface: #2B2E3B;
+            --text-primary: #F3F4F6;
+            --text-secondary: #A1A1AA;
+            --accent: #60A5FA;
+            --cta: #FDBA74;
+            --border: #3B3E4D;
+            --error: #F87171;
+            --success: #6EE7B7;
+        }
+
+        /* --- Các Style chung --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Thanh điều hướng --- */
+        nav {
+            background-color: var(--bg-surface);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav .logo a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        nav .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        nav .nav-links a, nav .nav-links span {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav .nav-links a:hover {
+            color: var(--accent);
+        }
+        nav .nav-links .button {
+            background-color: var(--cta);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+        }
+        nav .nav-links .button:hover {
+             color: white;
+             opacity: 0.9;
+        }
+
+        /* --- Nội dung chính --- */
+        .main-content {
+            max-width: 1024px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        /* --- Giao diện Form --- */
+        .form-wrapper {
+            background-color: var(--bg-surface);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            margin: auto;
+            border: 1px solid var(--border);
+        }
+        .form-wrapper h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        .form-field { margin-bottom: 1.25rem; }
+        .form-field label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .form-field input, .form-field select, .form-field textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        .form-field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-translucent, rgba(59, 130, 246, 0.2));
+        }
+
+        /* --- Nút bấm --- */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background-color: var(--accent); color: white; }
+        .btn-cta { background-color: var(--cta); color: white; }
+
+        /* --- Dark Mode Toggle --- */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 44px;
+        }
+        .theme-switch input {
+            display:none;
+        }
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
     </style>
-
-    <!-- ======================================================= -->
-    <!-- TÍCH HỢP MATHJAX -->
-    <!-- Script này sẽ tự động tìm và render các công thức LaTeX -->
-    <!-- ======================================================= -->
-    <script>
-        // Cấu hình cơ bản cho MathJax
-        window.MathJax = {
-          tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']], // Dùng $...$ cho công thức inline
-            displayMath: [['$$', '$$'], ['\\[', '\\]']] // Dùng $$...$$ cho công thức hiển thị riêng dòng
-          },
-          svg: {
-            fontCache: 'global'
-          }
-        };
-    </script>
-    <script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-    </script>
-    <!-- ======================================================= -->
-
 </head>
 <body>
     <nav>
         <div class="logo">
-            <a href="{% url 'home' %}">Fuck TSA</a>
+            <a href="{% url 'home' %}">LuyệnThi</a>
         </div>
         <div class="nav-links">
             {% if user.is_authenticated %}
-                
-                <!-- Hiển thị nút điều hướng dựa trên vai trò người dùng -->
                 {% if user.role == 'TEACHER' %}
-                    <a href="{% url 'teacher_dashboard' %}" class="button">Bảng điều khiển</a>
+                    <a href="{% url 'teacher_dashboard' %}">Bảng điều khiển</a>
                 {% elif user.role == 'STUDENT' %}
-                    <a href="{% url 'student_exam_list' %}" class="button">Danh sách bài thi</a>
+                    <a href="{% url 'student_exam_list' %}">Danh sách bài thi</a>
                 {% endif %}
-
-                <span>Chào, {{ user.username }}!</span>
-                <form action="{% url 'logout' %}" method="post">
+                <span>Chào, {{ user.username }}</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; color:#5d5dff; cursor:pointer; padding:0; text-decoration: underline; font: inherit;">
-                        Đăng xuất
-                    </button>
+                    <button type="submit" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-weight:500; font-family:var(--font-sans); font-size:1rem;">Đăng xuất</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}">Đăng nhập</a>
                 <a href="{% url 'register' %}" class="button">Đăng ký</a>
             {% endif %}
+            
+            <div class="theme-switch-wrapper">
+              <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider round"></div>
+              </label>
+            </div>
         </div>
     </nav>
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        const themeToggle = document.getElementById('checkbox');
+        const currentTheme = localStorage.getItem('theme');
+
+        // Áp dụng theme đã lưu khi tải trang
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') {
+                themeToggle.checked = true;
+            }
+        }
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }    
+        }
+
+        themeToggle.addEventListener('change', switchTheme, false);
+    </script>
 </body>
 </html>

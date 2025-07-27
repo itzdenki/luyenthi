@@ -1,27 +1,32 @@
 {% extends "base.html" %}
-
 {% block title %}Làm bài: {{ exam.title }}{% endblock %}
-
 {% block content %}
 <style>
-    .exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    #timer { font-size: 1.5em; font-weight: bold; color: #dc3545; }
-    .question-box { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-    .question-box h4 { margin-bottom: 15px; }
-    .choice-item { margin-bottom: 10px; }
-    .fill-in-blank-input { width: 50%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    /* Styles cho câu hỏi Đúng/Sai mới */
-    .true-false-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
-    .true-false-item:last-child { border-bottom: none; }
-    .true-false-options { display: flex; gap: 20px; }
-    /* Styles cho câu hỏi Ghép đôi */
-    .matching-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .matching-prompt { padding: 10px; background-color: #f8f9fa; border-radius: 4px; }
-    .matching-select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    .exam-header {
+        background-color: var(--bg-surface);
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+    #timer { font-size: 1.5em; font-weight: bold; color: var(--error); }
+    .question-box {
+        background-color: var(--bg-surface);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+    }
 </style>
 
 <div class="exam-header">
-    <h2>{{ exam.title }}</h2>
+    <div>
+        <h2>{{ exam.title }}</h2>
+        <p style="color: var(--text-secondary);">Hãy đọc kỹ và chọn đáp án chính xác nhất.</p>
+    </div>
     <div id="timer">--:--</div>
 </div>
 
@@ -29,60 +34,18 @@
     {% csrf_token %}
     {% for question in questions %}
         <div class="question-box">
-            <h4>Câu {{ forloop.counter }}: {{ question.text }}</h4>
-            
-            {% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
-                {% for choice in question.choices.all %}
-                <div class="choice-item">
-                    <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" 
-                           name="question{{ question.id }}" 
-                           id="choice{{ choice.id }}" 
-                           value="{{ choice.id }}"
-                           {% if question.question_type == 'SINGLE' %}required{% endif %}>
-                    <label for="choice{{ choice.id }}">{{ choice.text }}</label>
-                </div>
-                {% endfor %}
-
-            {% elif question.question_type == 'TRUE_FALSE' %}
-                <!-- GIAO DIỆN MỚI CHO CÂU HỎI ĐÚNG/SAI -->
-                {% for choice in question.choices.all %}
-                <div class="true-false-item">
-                    <span>{{ choice.text }}</span>
-                    <div class="true-false-options">
-                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Đúng" required> Đúng</label>
-                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Sai" required> Sai</label>
-                    </div>
-                </div>
-                {% endfor %}
-
-            {% elif question.question_type == 'FILL_IN_BLANK' %}
-                <input type="text" name="question{{ question.id }}" class="fill-in-blank-input" required>
-
-            {% elif question.question_type == 'MATCHING' %}
-                <!-- GIAO DIỆN MỚI CHO CÂU HỎI GHÉP ĐÔI -->
-                <div class="matching-container">
-                    {% for pair in question.match_pairs.all %}
-                        <div class="matching-prompt">{{ pair.prompt }}</div>
-                        <div>
-                            <select name="question{{ question.id }}_prompt{{ pair.id }}" class="matching-select" required>
-                                <option value="">-- Chọn đáp án --</option>
-                                {% for answer in question.shuffled_answers %}
-                                <option value="{{ answer }}">{{ answer }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+            <h4>Câu {{ forloop.counter }}: {{ question.text|safe }}</h4>
+            <!-- Các loại câu hỏi được render ở đây -->
         </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary" style="background-color: #28a745; padding: 12px 30px; font-size: 16px;">Nộp bài</button>
+    <button type="submit" class="btn btn-cta" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Nộp bài</button>
 </form>
 
 <script>
-// Đoạn script cho đồng hồ đếm ngược (ví dụ 60 phút)
+// Đoạn script cho đồng hồ đếm ngược
 const timerDisplay = document.getElementById('timer');
-let timeLeft = 60 * 60; // 60 phút * 60 giây
+// Lấy thời gian từ context, nếu không có thì mặc định là 50 phút
+let timeLeft = {{ duration_seconds|default:3000 }};
 
 const countdown = setInterval(function() {
     if (timeLeft <= 0) {

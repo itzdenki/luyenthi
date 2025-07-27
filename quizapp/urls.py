@@ -1,35 +1,32 @@
-# quizapp/urls.py
-
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import RegisterView, home_view, teacher_dashboard, ExamCreateView, ExamUpdateView, ExamDeleteView, exam_detail_teacher, question_create_update, QuestionDeleteView, StudentExamListView, student_exam_take, student_exam_result
+from . import views
 
 urlpatterns = [
-    path('', home_view, name='home'),
-    
-    # URL cho Đăng ký
-    path('register/', RegisterView.as_view(), name='register'),
-    
-    # URL cho Đăng nhập (sử dụng LoginView có sẵn)
-    path('login/', LoginView.as_view(
-        template_name='registration/login.html',
-        redirect_authenticated_user=True # Tự động chuyển hướng nếu người dùng đã đăng nhập
-    ), name='login'),
-    
-    # URL cho Đăng xuất (sử dụng LogoutView có sẵn)
+    # Auth & Home
+    path('', views.home_view, name='home'),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
-    path('dashboard/', teacher_dashboard, name='teacher_dashboard'),
-    path('dashboard/exam/create/', ExamCreateView.as_view(), name='exam_create'),
-    path('dashboard/exam/<int:pk>/update/', ExamUpdateView.as_view(), name='exam_update'),
-    path('dashboard/exam/<int:pk>/delete/', ExamDeleteView.as_view(), name='exam_delete'),
+    # Teacher Dashboard & Exam CRUD
+    path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('dashboard/exam/create/', views.ExamCreateView.as_view(), name='exam_create'),
+    path('dashboard/exam/<int:pk>/update/', views.ExamUpdateView.as_view(), name='exam_update'),
+    path('dashboard/exam/<int:pk>/delete/', views.ExamDeleteView.as_view(), name='exam_delete'),
     
-    path('dashboard/exam/<int:pk>/', exam_detail_teacher, name='exam_detail_teacher'),
-    path('dashboard/exam/<int:exam_pk>/question/create/', question_create_update, name='question_create'),
-    path('dashboard/exam/<int:exam_pk>/question/<int:question_pk>/update/', question_create_update, name='question_update'),
-    path('dashboard/exam/<int:exam_pk>/question/<int:pk>/delete/', QuestionDeleteView.as_view(), name='question_delete'),
+    # Teacher Question Management
+    path('dashboard/exam/<int:pk>/', views.exam_detail_teacher, name='exam_detail_teacher'),
+    path('dashboard/exam/<int:exam_pk>/question/create/', views.question_create_update, name='question_create'),
+    path('dashboard/exam/<int:exam_pk>/question/<int:question_pk>/update/', views.question_create_update, name='question_update'),
+    path('dashboard/exam/question/<int:pk>/delete/', views.QuestionDeleteView.as_view(), name='question_delete'),
+    path('dashboard/passage/<int:pk>/update/', views.ReadingPassageUpdateView.as_view(), name='passage_update'),
 
-    path('exams/', StudentExamListView.as_view(), name='student_exam_list'),
-    path('exam/<int:pk>/take/', student_exam_take, name='student_exam_take'),
-    path('result/<int:pk>/', student_exam_result, name='student_exam_result'),
+
+    # Student Exam Flow
+    path('exams/', views.StudentExamListView.as_view(), name='student_exam_list'),
+    path('exam/<int:pk>/start/', views.start_exam, name='start_exam'),
+    path('exam/<int:pk>/take/', views.student_exam_take, name='student_exam_take'),
+    path('exam/<int:pk>/take/section/<int:section_order>/', views.student_exam_take_sectional, name='student_exam_take_section'),
+    path('result/<int:pk>/', views.student_exam_result, name='student_exam_result'),
 ]

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<style>
+    .form-wrapper { max-width: 800px; }
+    #standard-structure-fields, #custom-duration-field, #custom-structure-fields {
+        display: none; /* Ẩn tất cả các trường tùy chọn ban đầu */
+    }
+    .formset-wrapper {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+    }
+    .section-form {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .section-form:last-child { border-bottom: none; }
+</style>
+
+<div class="form-wrapper">
+    <h2>{{ page_title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-field">{{ form.title.label_tag }} {{ form.title }}</div>
+        <div class="form-field">{{ form.description.label_tag }} {{ form.description }}</div>
+        <div class="form-field" style="display: flex; align-items: center; gap: 10px;">{{ form.is_custom }} {{ form.is_custom.label_tag }}</div>
+
+        <div id="standard-structure-fields">
+            <div class="form-field">{{ form.subject.label_tag }} {{ form.subject }}</div>
+        </div>
+
+        <div id="custom-structure-fields">
+            <div id="custom-duration-field">
+                <div class="form-field">{{ form.duration_minutes.label_tag }} {{ form.duration_minutes }}</div>
+            </div>
+            
+            <div class="formset-wrapper">
+                <h4>Xây dựng các phần của đề thi</h4>
+                {{ section_formset.management_form }}
+                <div id="section-formset-container">
+                    {% for form in section_formset %}
+                        <div class="section-form">{{ form.as_p }}</div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary" id="add-section-btn" style="margin-top: 1rem;">Thêm phần thi</button>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <a href="{{ request.META.HTTP_REFERER|default:request.get_full_path }}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Hủy bỏ</a>
+            <button type="submit" class="btn btn-cta">Lưu bài thi</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // (JavaScript để ẩn/hiện các trường và thêm/xóa formset giữ nguyên)
+    const isCustomCheckbox = document.getElementById('id_is_custom');
+    const standardFields = document.getElementById('standard-structure-fields');
+    const customFields = document.getElementById('custom-structure-fields');
+    const customDurationField = document.getElementById('custom-duration-field');
+
+    function toggleStructureFields() {
+        if (isCustomCheckbox.checked) {
+            standardFields.style.display = 'none';
+            customFields.style.display = 'block';
+            customDurationField.style.display = 'block';
+        } else {
+            standardFields.style.display = 'block';
+            customFields.style.display = 'none';
+            customDurationField.style.display = 'none';
+        }
+    }
+    isCustomCheckbox.addEventListener('change', toggleStructureFields);
+    toggleStructureFields();
+</script>
+{% endblock %}

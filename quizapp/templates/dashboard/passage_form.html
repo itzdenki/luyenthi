@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Chỉnh sửa Ngữ liệu{% endblock %}
+{% block content %}
+<div class="form-wrapper" style="max-width: 800px;">
+    <h2>Chỉnh sửa Ngữ liệu: {{ object.title }}</h2>
+    <p style="text-align: center; margin-top: -1rem; margin-bottom: 2rem; color: var(--text-secondary);">
+        Bài thi: <strong>{{ object.exam.title }}</strong>
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-field">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+        <div class="form-field">
+            {{ form.content.label_tag }}
+            {{ form.content }}
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <a href="{% url 'exam_detail_teacher' pk=object.exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Hủy bỏ</a>
+            <button type="submit" class="btn btn-cta">Lưu Ngữ liệu</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

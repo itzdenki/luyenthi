@@ -6,9 +6,11 @@
 <style>
     .form-container { max-width: 700px; margin: auto; }
     .form-container h2 { text-align: center; margin-bottom: 25px; }
-    .form-container form p { margin-bottom: 20px; }
+    .form-container form .form-field { margin-bottom: 20px; }
     .form-container label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
-    .form-container input[type='text'], .form-container textarea {
+    .form-container input[type='text'], 
+    .form-container textarea,
+    .form-container select {
         width: 100%;
         padding: 12px;
         border: 1px solid #ccc;
@@ -16,7 +18,9 @@
         box-sizing: border-box;
         transition: border-color 0.2s;
     }
-    .form-container input[type='text']:focus, .form-container textarea:focus {
+    .form-container input[type='text']:focus, 
+    .form-container textarea:focus,
+    .form-container select:focus {
         border-color: #5d5dff;
         outline: none;
     }
@@ -31,15 +35,23 @@
     <form method="post">
         {% csrf_token %}
         
-        <!-- Hiển thị các trường của form một cách rõ ràng -->
-        <p>
+        <div class="form-field">
             <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
             {{ form.title }}
-        </p>
-        <p>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- TRƯỜNG CHỌN MÔN HỌC ĐÃ ĐƯỢC THÊM VÀO ĐÂY -->
+        <!-- ======================================================= -->
+        <div class="form-field">
+            <label for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+            {{ form.subject }}
+        </div>
+
+        <div class="form-field">
             <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
             {{ form.description }}
-        </p>
+        </div>
 
         <div class="form-actions">
             <a href="{% url 'teacher_dashboard' %}" class="btn btn-cancel">Hủy bỏ</a>

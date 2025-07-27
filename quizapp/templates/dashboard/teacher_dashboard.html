@@ -8,103 +8,68 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #eee;
-        flex-wrap: wrap; /* Đảm bảo xuống dòng trên màn hình nhỏ */
-    }
-    .dashboard-header h2 {
-        margin: 0;
-    }
-    .btn-create {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-    .btn-create:hover {
-        background-color: #218838;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
     }
     .exam-list {
         list-style: none;
         padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
     }
     .exam-item {
-        background: #fff;
-        border: 1px solid #ddd;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 15px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
         display: flex;
+        flex-direction: column;
         justify-content: space-between;
-        align-items: center;
-        transition: box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
     .exam-item:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    html[data-theme='dark'] .exam-item:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     }
     .exam-info h3 {
-        margin: 0 0 5px 0;
-        font-size: 1.2em;
-        color: #333;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25em;
+        color: var(--text-primary);
     }
-    .exam-info small {
-        color: #6c757d;
-    }
+    .exam-info small { color: var(--text-secondary); }
+    .exam-actions { margin-top: 1.5rem; display: flex; gap: 0.5rem; }
     .exam-actions a {
-        margin-left: 10px;
-        text-decoration: none;
-        padding: 6px 12px;
-        border-radius: 5px;
-        font-size: 14px;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        transition: opacity 0.2s;
-    }
-    .exam-actions a:hover {
-        opacity: 0.85;
-    }
-    .action-manage { background-color: #007bff; }
-    .action-edit { background-color: #ffc107; color: #212529; }
-    .action-delete { background-color: #dc3545; }
-    .no-exams {
-        text-align: center;
-        padding: 40px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
     }
 </style>
 
 <div class="dashboard-header">
     <h2>Các bài thi của bạn</h2>
-    <a href="{% url 'exam_create' %}" class="btn-create">Tạo bài thi mới</a>
+    <a href="{% url 'exam_create' %}" class="btn btn-cta">Tạo bài thi mới</a>
 </div>
 
-{% if exams %}
-    <ul class="exam-list">
-        {% for exam in exams %}
-            <li class="exam-item">
-                <div class="exam-info">
-                    <h3>{{ exam.title }}</h3>
-                    <small>Tạo ngày: {{ exam.created_at|date:"d/m/Y" }}</small>
-                </div>
-                <div class="exam-actions">
-                    <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="action-manage">Quản lý câu hỏi</a>
-                    <a href="{% url 'exam_update' pk=exam.pk %}" class="action-edit">Sửa</a>
-                    <a href="{% url 'exam_delete' pk=exam.pk %}" class="action-delete">Xóa</a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <div class="no-exams">
-        <p>Bạn chưa tạo bài thi nào.</p>
-        <p>Hãy bắt đầu bằng việc <a href="{% url 'exam_create' %}">tạo bài thi mới</a> ngay bây giờ!</p>
-    </div>
-{% endif %}
-
+<div class="exam-list">
+    {% for exam in exams %}
+        <div class="exam-item">
+            <div class="exam-info">
+                <h3>{{ exam.title }}</h3>
+                <small>{{ exam.get_subject_display }} | {{ exam.duration_minutes }} phút | {% if exam.is_custom %}Tùy chỉnh{% else %}Cấu trúc chuẩn{% endif %}</small>
+            </div>
+            <div class="exam-actions">
+                <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn btn-primary">Quản lý</a>
+                <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Sửa</a>
+                <a href="{% url 'exam_delete' pk=exam.pk %}" class="btn" style="background-color: var(--error); color: white;">Xóa</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Bạn chưa tạo bài thi nào. Hãy bắt đầu ngay!</p>
+    {% endfor %}
+</div>
 {% endblock %}

@@ -3,19 +3,143 @@
 {% block title %}Đăng ký tài khoản{% endblock %}
 
 {% block content %}
-    <style>
-        .form-container { display: flex; flex-direction: column; }
-        .form-container p { margin-bottom: 15px; }
-        .form-container label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-container input, .form-container select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .form-container button { background-color: #5d5dff; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        .form-container button:hover { background-color: #4a4ad8; }
-    </style>
+<style>
+    .password-strength-meter {
+        height: 8px;
+        background-color: var(--border);
+        border-radius: 4px;
+        margin-top: 0.75rem;
+        overflow: hidden;
+    }
+    .strength-bar {
+        height: 100%;
+        width: 0;
+        border-radius: 4px;
+        transition: width 0.3s, background-color 0.3s;
+    }
+    .strength-text {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        text-align: right;
+        height: 1.2em; /* Giữ chiều cao ổn định */
+    }
+</style>
 
-    <h2>Đăng ký tài khoản</h2>
-    <form class="form-container" method="post">
+<div class="form-wrapper">
+    <h2>Tạo tài khoản mới</h2>
+    <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Đăng ký</button>
+
+        <!-- Hiển thị lỗi chung của form (nếu có) -->
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p style="color: var(--error); margin-bottom: 1rem;">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Tên đăng nhập -->
+        <div class="form-field">
+            <label for="{{ form.username.id_for_label }}">Tên đăng nhập</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
+                <p style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem;">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <p style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Vai trò -->
+        <div class="form-field">
+            <label for="{{ form.role.id_for_label }}">Bạn là</label>
+            {{ form.role }}
+        </div>
+
+        <!-- Mật khẩu 1 -->
+        <div class="form-field">
+            <label for="{{ form.password1.id_for_label }}">Mật khẩu</label>
+            {{ form.password1 }}
+            <div class="password-strength-meter">
+                <div class="strength-bar" id="strength-bar"></div>
+            </div>
+            <div class="strength-text" id="strength-text"></div>
+            {% for error in form.password1.errors %}
+                <p style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem;">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <!-- Mật khẩu 2 (Xác nhận) -->
+        <div class="form-field">
+            <label for="{{ form.password2.id_for_label }}">Xác nhận mật khẩu</label>
+            {{ form.password2 }}
+            {% for error in form.password2.errors %}
+                <p style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem;">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-cta" style="width: 100%; margin-top: 1rem;">Tạo tài khoản</button>
     </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('id_password1'); // Sửa ở đây
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text');
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let score = 0;
+        let feedback = '';
+
+        if (password.length > 0) {
+            // Tính điểm độ mạnh
+            if (password.length >= 8) score++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) score++;
+            if (password.match(/\d/)) score++;
+            if (password.match(/[^a-zA-Z\d]/)) score++;
+            
+            // Cập nhật giao diện dựa trên điểm
+            switch (score) {
+                case 1:
+                    feedback = 'Rất yếu';
+                    strengthBar.style.width = '25%';
+                    strengthBar.style.backgroundColor = 'var(--error)';
+                    break;
+                case 2:
+                    feedback = 'Yếu';
+                    strengthBar.style.width = '50%';
+                    strengthBar.style.backgroundColor = 'var(--cta)';
+                    break;
+                case 3:
+                    feedback = 'Trung bình';
+                    strengthBar.style.width = '75%';
+                    strengthBar.style.backgroundColor = 'var(--accent)';
+                    break;
+                case 4:
+                    feedback = 'Mạnh';
+                    strengthBar.style.width = '100%';
+                    strengthBar.style.backgroundColor = 'var(--success)';
+                    break;
+                default:
+                    feedback = 'Rất yếu';
+                    strengthBar.style.width = '10%';
+                    strengthBar.style.backgroundColor = 'var(--error)';
+            }
+        } else {
+            // Reset khi không có mật khẩu
+            strengthBar.style.width = '0%';
+            feedback = '';
+        }
+        strengthText.textContent = feedback;
+    });
+});
+</script>
 {% endblock %}

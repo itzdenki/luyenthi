@@ -1,95 +1,122 @@
 {% extends "base.html" %}
-
-{% block title %}Chi tiết: {{ exam.title }}{% endblock %}
-
+{% block title %}Quản lý: {{ exam.title }}{% endblock %}
 {% block content %}
 <style>
     .page-header {
+        margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
         flex-wrap: wrap;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
     }
-    .btn {
-        background-color: #5d5dff;
-        color: white;
-        padding: 10px 15px;
+    .exam-section { margin-bottom: 2.5rem; }
+    .exam-section h3 {
+        font-size: 1.5em;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+    .question-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+    }
+    .question-slot {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+    }
+    .question-slot.placeholder {
+        border-style: dashed;
+        background-color: transparent;
+    }
+    .question-slot:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .question-slot a {
         text-decoration: none;
-        border-radius: 5px;
-        font-size: 14px;
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
     }
-    .question-list {
-        list-style: none;
-        padding: 0;
+    .slot-order { font-weight: bold; font-size: 1.1em; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .slot-text { font-size: 0.9em; min-height: 40px; }
+    .slot-action { margin-top: 1rem; font-weight: 500; }
+    .action-create { color: var(--success); }
+    .action-edit { color: var(--accent); }
+    .passage-management {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
     }
-    .question-item {
-        background: #fff;
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 15px;
+    .passage-item {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border);
     }
-    .question-info {
-        flex-grow: 1;
-    }
-    .question-info .question-text {
-        font-weight: bold;
-        margin: 0 0 5px 0;
-    }
-    .question-info .question-meta {
-        font-size: 0.9em;
-        color: #666;
-    }
-    .question-actions {
-        display: flex;
-        flex-shrink: 0;
-        margin-left: 20px;
-    }
-    .question-actions a {
-        margin-left: 10px;
-        text-decoration: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    .action-edit { background-color: #ffc107; color: #212529; }
-    .action-delete { background-color: #dc3545; color: white; }
+    .passage-item:last-child { border-bottom: none; }
 </style>
 
 <div class="page-header">
     <div>
-        <h2>{{ exam.title }}</h2>
-        <p>{{ exam.description|default:"Không có mô tả." }}</p>
+        <h2>Quản lý nội dung: {{ exam.title }}</h2>
+        <small style="color: var(--text-secondary);">
+            Môn học: <strong>{{ exam.get_subject_display }}</strong> | Thời gian: <strong>{{ exam.duration_minutes }} phút</strong>
+        </small>
     </div>
-    <a href="{% url 'question_create' exam_pk=exam.pk %}" class="btn">Thêm câu hỏi mới</a>
+    <div>
+        <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Sửa thông tin</a>
+    </div>
 </div>
 
-<h4>Danh sách câu hỏi</h4>
-
-{% if questions %}
-    <ul class="question-list">
-        {% for question in questions %}
-            <li class="question-item">
-                <div class="question-info">
-                    <p class="question-text">{{ question.order }}. {{ question.text|truncatewords:30 }}</p>
-                    <p class="question-meta">Loại: {{ question.get_question_type_display }}</p>
-                </div>
-                <div class="question-actions">
-                    <a href="{% url 'question_update' exam_pk=exam.pk question_pk=question.pk %}" class="action-edit">Sửa</a>
-                    
-                    <a href="{% url 'question_delete' exam_pk=exam.pk pk=question.pk %}" class="action-delete">Xóa</a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Chưa có câu hỏi nào trong bài thi này. Hãy bắt đầu bằng việc <a href="{% url 'question_create' exam_pk=exam.pk %}">thêm câu hỏi mới</a>.</p>
+<!-- KHU VỰC QUẢN LÝ NGỮ LIỆU MỚI -->
+{% if passages %}
+<div class="passage-management">
+    <h3>Quản lý Ngữ liệu Đọc hiểu</h3>
+    {% for passage in passages %}
+    <div class="passage-item">
+        <span><strong>{{ passage.title }}:</strong> {{ passage.content|truncatewords:15 }}</span>
+        <a href="{% url 'passage_update' pk=passage.pk %}" class="btn btn-primary">Sửa nội dung</a>
+    </div>
+    {% endfor %}
+</div>
 {% endif %}
 
-<a href="{% url 'teacher_dashboard' %}" style="margin-top: 20px; display: inline-block;">&larr; Quay lại Bảng điều khiển</a>
+{% for section_title, section_data in structured_exam.items %}
+<div class="exam-section">
+    <h3>{{ section_title }}</h3>
+    <div class="question-grid">
+        {% for slot in section_data.slots %}
+            <div class="question-slot {% if slot.is_placeholder %}placeholder{% endif %}">
+                {% if slot.is_placeholder %}
+                    <a href="{% url 'question_create' exam_pk=exam.pk %}?type={{ section_data.question_type_value }}&order={{ slot.order_in_type }}">
+                        <div class="slot-order">Câu {{ slot.display_order }}</div>
+                        <div class="slot-text">(Trống)</div>
+                        <div class="slot-action action-create">Tạo câu hỏi</div>
+                    </a>
+                {% else %}
+                    <a href="{% url 'question_update' exam_pk=exam.pk question_pk=slot.question.pk %}">
+                        <div class="slot-order">Câu {{ slot.display_order }}</div>
+                        <div class="slot-text">{{ slot.question.text|truncatechars:50 }}</div>
+                        <div class="slot-action action-edit">Chỉnh sửa</div>
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
 
+<a href="{% url 'teacher_dashboard' %}" style="margin-top: 2rem; display: inline-block; color: var(--accent);">&larr; Quay lại Bảng điều khiển</a>
 {% endblock %}
