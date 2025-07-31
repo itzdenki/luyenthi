@@ -18,10 +18,23 @@ class RegisterView(CreateView):
     form_class = CustomUserCreationForm
     template_name = 'registration/register.html'
     success_url = reverse_lazy('home')
+
     def form_valid(self, form):
-        response = super().form_valid(form)
-        login(self.request, self.object)
-        return response
+        """
+        Ghi đè phương thức này để xử lý việc đăng nhập sau khi đăng ký.
+        """
+        # Lưu người dùng mới vào database
+        user = form.save()
+        
+        # SỬA LỖI: Gán đối tượng người dùng vừa tạo cho self.object
+        # trước khi gọi các hàm khác.
+        self.object = user
+        
+        # Đăng nhập cho người dùng, chỉ định rõ backend sẽ sử dụng
+        login(self.request, user, backend='quizapp.backends.EmailBackend')
+        
+        # Chuyển hướng đến trang thành công
+        return redirect(self.get_success_url())
 
 def home_view(request):
     return render(request, 'home.html')
@@ -393,3 +406,20 @@ def student_exam_take_sectional(request, pk, section_order):
 def student_exam_result(request, pk):
     result = get_object_or_404(Result, pk=pk, student=request.user)
     return render(request, 'student/exam_result.html', {'result': result})
+
+class StudentResultHistoryView(LoginRequiredMixin, ListView):
+    model = Result
+    template_name = 'student/result_history.html'
+    context_object_name = 'results'
+    paginate_by = 10 # Hiển thị 10 kết quả mỗi trang
+    login_url = 'login'
+
+    def get_queryset(self):
+        # Lấy tất cả kết quả của người dùng đang đăng nhập, sắp xếp mới nhất lên đầu
+        queryset = Result.objects.filter(student=self.request.user).order_by('-submitted_at')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = "Lịch sử làm bài"
+        return context

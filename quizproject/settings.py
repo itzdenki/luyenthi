@@ -128,4 +128,12 @@ AUTH_USER_MODEL = 'quizapp.User'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-CSRF_TRUSTED_ORIGINS = ['https://*.devtunnels.ms']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.devtunnels.ms',
+    'https://*.itzdenki.io.vn',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'quizapp.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

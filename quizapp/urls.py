@@ -29,4 +29,6 @@ urlpatterns = [
     path('exam/<int:pk>/take/', views.student_exam_take, name='student_exam_take'),
     path('exam/<int:pk>/take/section/<int:section_order>/', views.student_exam_take_sectional, name='student_exam_take_section'),
     path('result/<int:pk>/', views.student_exam_result, name='student_exam_result'),
+
+    path('history/', views.StudentResultHistoryView.as_view(), name='student_result_history'),
 ]

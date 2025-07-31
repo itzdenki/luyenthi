@@ -1,12 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
     class Role(models.TextChoices):
         STUDENT = 'STUDENT', 'Học sinh'
         TEACHER = 'TEACHER', 'Giáo viên'
+
+    first_name = models.CharField(_("Họ và Tên"), max_length=150, blank=False)
+    email = models.EmailField(_("email address"), unique=True)
+    phone_number = models.CharField(max_length=15, blank=True, verbose_name="Số điện thoại")
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.STUDENT)
+    school = models.CharField(max_length=255, blank=True, verbose_name="Trường")
+    school_class = models.CharField(max_length=50, blank=True, verbose_name="Lớp")
+    date_of_birth = models.DateField(null=True, blank=True, verbose_name="Ngày Sinh")
     def __str__(self): return self.username
 
 class Exam(models.Model):

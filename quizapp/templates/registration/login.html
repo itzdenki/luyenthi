@@ -8,7 +8,7 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-field">
-            <label for="{{ form.username.id_for_label }}">Tên đăng nhập</label>
+            <label for="{{ form.username.id_for_label }}">Email</label>
             {{ form.username }}
         </div>
         <div class="form-field">
@@ -16,7 +16,7 @@
             {{ form.password }}
         </div>
         {% if form.errors %}
-            <p style="color: var(--error);">Tên đăng nhập hoặc mật khẩu không chính xác.</p>
+            <p style="color: var(--error);">Email hoặc mật khẩu không chính xác.</p>
         {% endif %}
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Đăng nhập</button>
     </form>

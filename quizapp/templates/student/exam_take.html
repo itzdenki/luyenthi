@@ -1,5 +1,10 @@
 {% extends "base.html" %}
+
 {% block title %}Làm bài: {{ exam.title }}{% endblock %}
+{% block description %}{{ exam.description|default:"Làm bài thi ngay trên Luyện Thi Pro!"|truncatewords:25 }}{% endblock %}
+{% block og_title %}{{ exam.title }} - Luyện Thi Pro{% endblock %}
+{% block og_description %}{{ exam.description|default:"Làm bài thi ngay trên Luyện Thi Pro!"|truncatewords:25 }}{% endblock %}
+
 {% block content %}
 <style>
     .exam-header {
@@ -20,6 +25,19 @@
         margin-bottom: 1.5rem;
         border: 1px solid var(--border);
     }
+    .question-text { 
+        margin-bottom: 1.5rem; 
+        line-height: 1.6; 
+    }
+    .choice-item { margin-bottom: 1rem; }
+    .choice-item label { margin-left: 0.5rem; }
+    .fill-in-blank-input { width: 50%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
+    .true-false-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .true-false-item:last-child { border-bottom: none; }
+    .true-false-options { display: flex; gap: 20px; }
+    .matching-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .matching-prompt { padding: 10px; background-color: var(--bg-primary); border-radius: 4px; }
+    .matching-select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
 </style>
 
 <div class="exam-header">
@@ -34,30 +52,64 @@
     {% csrf_token %}
     {% for question in questions %}
         <div class="question-box">
-            <h4>Câu {{ forloop.counter }}: {{ question.text|safe }}</h4>
-            <!-- Các loại câu hỏi được render ở đây -->
+            <h4 class="question-text">Câu {{ forloop.counter }}: {{ question.text|safe }}</h4>
+            
+            {% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
+                {% for choice in question.choices.all %}
+                <div class="choice-item">
+                    <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" {% if question.question_type == 'SINGLE' %}required{% endif %}>
+                    <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
+                </div>
+                {% endfor %}
+
+            {% elif question.question_type == 'TRUE_FALSE' %}
+                {% for choice in question.choices.all %}
+                <div class="true-false-item">
+                    <span>{{ choice.text|safe }}</span>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Đúng" required> Đúng</label>
+                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Sai" required> Sai</label>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% elif question.question_type == 'FILL_IN_BLANK' %}
+                <input type="text" name="question{{ question.id }}" class="fill-in-blank-input" required>
+
+            {% elif question.question_type == 'MATCHING' %}
+                <div class="matching-container">
+                    {% for pair in question.match_pairs.all %}
+                        <div class="matching-prompt">{{ pair.prompt|safe }}</div>
+                        <div>
+                            <select name="question{{ question.id }}_prompt{{ pair.id }}" class="matching-select" required>
+                                <option value="">-- Chọn đáp án --</option>
+                                {% for answer in question.shuffled_answers %}
+                                <option value="{{ answer }}">{{ answer }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     {% endfor %}
     <button type="submit" class="btn btn-cta" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Nộp bài</button>
 </form>
 
 <script>
-// Đoạn script cho đồng hồ đếm ngược
-const timerDisplay = document.getElementById('timer');
-// Lấy thời gian từ context, nếu không có thì mặc định là 50 phút
-let timeLeft = {{ duration_seconds|default:3000 }};
-
-const countdown = setInterval(function() {
-    if (timeLeft <= 0) {
-        clearInterval(countdown);
-        timerDisplay.textContent = "Hết giờ!";
-        document.querySelector('form').submit();
-    } else {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        timeLeft--;
-    }
-}, 1000);
+    const timerDisplay = document.getElementById('timer');
+    let timeLeft = {{ duration_seconds|default:3000 }};
+    const countdown = setInterval(function() {
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            timerDisplay.textContent = "Hết giờ!";
+            document.querySelector('form').submit();
+        } else {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timeLeft--;
+        }
+    }, 1000);
 </script>
 {% endblock %}

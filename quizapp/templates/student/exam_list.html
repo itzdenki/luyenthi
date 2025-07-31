@@ -1,7 +1,15 @@
 {% extends "base.html" %}
+
 {% block title %}Danh sách bài thi{% endblock %}
+{% block description %}Chọn một bài thi từ danh sách để bắt đầu luyện tập và kiểm tra kiến thức của bạn.{% endblock %}
+
 {% block content %}
 <style>
+    .page-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
     .exam-list-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -20,14 +28,44 @@
         transform: translateY(-5px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
-    .exam-card h3 { margin: 0 0 0.5rem 0; color: var(--text-primary); }
-    .exam-card p { color: var(--text-secondary); flex-grow: 1; margin-bottom: 1.5rem; }
-    .exam-card-footer { display: flex; justify-content: space-between; align-items: center; }
-    .exam-card-meta { font-size: 0.875rem; color: var(--text-secondary); }
+    html[data-theme='dark'] .exam-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .exam-card h3 { 
+        margin: 0 0 0.5rem 0; 
+        color: var(--text-primary); 
+    }
+    .exam-card p { 
+        color: var(--text-secondary); 
+        flex-grow: 1; 
+        margin-bottom: 1.5rem; 
+        min-height: 40px; /* Đảm bảo các thẻ có chiều cao mô tả tương đối bằng nhau */
+    }
+    .exam-card-footer { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+    .exam-card-meta { 
+        font-size: 0.875rem; 
+        color: var(--text-secondary); 
+    }
+    .no-exams-message {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        color: var(--text-secondary);
+        grid-column: 1 / -1; /* Trải dài toàn bộ chiều rộng grid */
+    }
 </style>
 
-<h2>Danh sách bài thi</h2>
-<div class="exam-list-container" style="margin-top: 2rem;">
+<div class="page-header">
+    <h2>Danh sách bài thi</h2>
+</div>
+
+<div class="exam-list-container">
     {% for exam in exams %}
         <div class="exam-card">
             <div>
@@ -35,12 +73,22 @@
                 <p>{{ exam.description|default:"Một bài kiểm tra kiến thức tổng hợp."|truncatewords:20 }}</p>
             </div>
             <div class="exam-card-footer">
-                <span class="exam-card-meta">{{ exam.get_subject_display }} | {{ exam.duration_minutes }} phút</span>
-                <a href="{% url 'student_exam_take' pk=exam.pk %}" class="btn btn-primary">Vào thi</a>
+                <span class="exam-card-meta">
+                    {% if exam.is_custom %}
+                        Đề tùy chỉnh
+                    {% else %}
+                        {{ exam.get_subject_display }}
+                    {% endif %}
+                    | {{ exam.duration_minutes }} phút
+                </span>
+                <a href="{% url 'start_exam' pk=exam.pk %}" class="btn btn-primary">Vào thi</a>
             </div>
         </div>
     {% empty %}
-        <p>Hiện tại chưa có bài thi nào.</p>
+        <div class="no-exams-message">
+            <p>Hiện tại chưa có bài thi nào được tạo.</p>
+            <p>Vui lòng quay lại sau!</p>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

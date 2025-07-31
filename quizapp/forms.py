@@ -4,10 +4,38 @@ from django.forms import inlineformset_factory
 from .models import User, Exam, Question, Choice, MatchPair, ExamSection, ReadingPassage
 
 class CustomUserCreationForm(UserCreationForm):
+    # Định nghĩa các trường mới cho form
+    first_name = forms.CharField(max_length=150, required=True, label="Họ và Tên")
+    email = forms.EmailField(required=True, label="Email")
+    phone_number = forms.CharField(max_length=15, required=False, label="Số điện thoại")
+    school = forms.CharField(max_length=255, required=False, label="Trường")
+    school_class = forms.CharField(max_length=50, required=False, label="Lớp")
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}), 
+        required=False, 
+        label="Ngày Sinh"
+    )
+    role = forms.ChoiceField(choices=User.Role.choices, label="Bạn là")
+
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'email', 'role')
-    role = forms.ChoiceField(choices=User.Role.choices)
+        # Chỉ định các trường sẽ được render bởi form, username sẽ được xử lý tự động
+        fields = ("first_name", "email", 'phone_number', "school", "school_class", "date_of_birth", "role")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Tự động gán username bằng email để đăng nhập
+        user.username = self.cleaned_data["email"]
+        # Gán các trường tùy chỉnh
+        user.first_name = self.cleaned_data["first_name"]
+        user.phone_number = self.cleaned_data["phone_number"]
+        user.school = self.cleaned_data["school"]
+        user.school_class = self.cleaned_data["school_class"]
+        user.date_of_birth = self.cleaned_data["date_of_birth"]
+        user.role = self.cleaned_data["role"]
+        if commit:
+            user.save()
+        return user
 
 class ExamForm(forms.ModelForm):
     class Meta:

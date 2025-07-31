@@ -5,18 +5,20 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, Exam, Question, Choice, MatchPair # Import MatchPair
 
 # --- Custom User Admin ---
-# Đăng ký model User tùy chỉnh để quản lý vai trò
 class CustomUserAdmin(UserAdmin):
+    # Cập nhật để hiển thị các trường mới trong trang admin
     fieldsets = UserAdmin.fieldsets + (
-        ('Phân quyền tùy chỉnh', {'fields': ('role',)}),
+        ('Thông tin bổ sung', {'fields': ('phone_number', 'school', 'school_class', 'date_of_birth', 'role')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('role',)}),
+        ('Thông tin cá nhân', {'fields': ('first_name', 'phone_number', 'school', 'school_class', 'date_of_birth', 'role')}),
     )
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'role')
+    list_display = ('username', 'email', 'first_name', 'phone_number', 'is_staff', 'role')
+    search_fields = ('username', 'first_name', 'email', 'phone_number')
 
+# Đăng ký lại User với CustomUserAdmin
+# admin.site.unregister(User) # Dòng này có thể gây lỗi nếu User chưa được đăng ký, nên comment lại nếu cần
 admin.site.register(User, CustomUserAdmin)
-
 
 # --- Inlines for Question Admin ---
 # Các form con sẽ hiển thị bên trong trang chi tiết của Question

@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Luyện Thi Pro{% endblock %}</title>
-    
+
+    <title>{% block title %}Luyện Thi{% endblock %}</title>
+    <meta name="description"
+        content="{% block description %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh, theo dõi tiến độ học tập hiệu quả.{% endblock %}">
+    <meta name="keywords"
+        content="luyện thi, trắc nghiệm, azota, django, online test, đánh giá tư duy, tsa, thpt quốc gia">
+
+    <!-- Open Graph Tags (cho Facebook, Zalo, Messenger...) -->
+    <meta property="og:title" content="{% block og_title %}{% block title_og %}{% endblock %}Luyện Thi{% endblock %}">
+    <meta property="og:description"
+        content="{% block og_description %}{% block description_og %}{% endblock %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh.{% endblock %}">
+    <meta property="og:image"
+        content="{% block og_image %}https://placehold.co/1200x630/3B82F6/FFFFFF?text=LuyenThi{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="vi_VN">
+
+    <!-- Twitter Card Tags (cho Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title"
+        content="{% block twitter_title %}{% block title_twitter %}{% endblock %}Luyện Thi{% endblock %}">
+    <meta name="twitter:description"
+        content="{% block twitter_description %}{% block description_twitter %}{% endblock %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh.{% endblock %}">
+    <meta name="twitter:image"
+        content="{% block twitter_image %}https://placehold.co/1200x630/3B82F6/FFFFFF?text=LuyenThi{% endblock %}">
+
     <style>
         /* --- Bảng màu và Cấu hình Giao diện --- */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            
+
             /* Bảng màu cho Chế độ Sáng (Light Mode) */
             --bg-primary: #F9FAFB;
             --bg-surface: #FFFFFF;
@@ -61,26 +86,32 @@
             top: 0;
             z-index: 100;
         }
+
         nav .logo a {
             color: var(--text-primary);
             text-decoration: none;
             font-weight: bold;
             font-size: 1.5rem;
         }
+
         nav .nav-links {
             display: flex;
             align-items: center;
             gap: 1.5rem;
         }
-        nav .nav-links a, nav .nav-links span {
+
+        nav .nav-links a,
+        nav .nav-links span {
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s;
         }
+
         nav .nav-links a:hover {
             color: var(--accent);
         }
+
         nav .nav-links .button {
             background-color: var(--cta);
             color: white;
@@ -88,9 +119,10 @@
             border-radius: 0.5rem;
             font-weight: bold;
         }
+
         nav .nav-links .button:hover {
-             color: white;
-             opacity: 0.9;
+            color: white;
+            opacity: 0.9;
         }
 
         /* --- Nội dung chính --- */
@@ -99,7 +131,7 @@
             margin: 2rem auto;
             padding: 2rem;
         }
-        
+
         /* --- Giao diện Form --- */
         .form-wrapper {
             background-color: var(--bg-surface);
@@ -109,19 +141,27 @@
             margin: auto;
             border: 1px solid var(--border);
         }
+
         .form-wrapper h2 {
             text-align: center;
             margin-bottom: 1.5rem;
             color: var(--text-primary);
         }
-        .form-field { margin-bottom: 1.25rem; }
+
+        .form-field {
+            margin-bottom: 1.25rem;
+        }
+
         .form-field label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: var(--text-secondary);
         }
-        .form-field input, .form-field select, .form-field textarea {
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
             width: 100%;
             padding: 0.75rem;
             background-color: var(--bg-primary);
@@ -130,6 +170,7 @@
             color: var(--text-primary);
             font-size: 1rem;
         }
+
         .form-field input:focus {
             outline: none;
             border-color: var(--accent);
@@ -148,24 +189,38 @@
             text-align: center;
             transition: transform 0.2s, opacity 0.2s;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-primary { background-color: var(--accent); color: white; }
-        .btn-cta { background-color: var(--cta); color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-cta {
+            background-color: var(--cta);
+            color: white;
+        }
 
         /* --- Dark Mode Toggle --- */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
         }
+
         .theme-switch {
             display: inline-block;
             height: 24px;
             position: relative;
             width: 44px;
         }
+
         .theme-switch input {
-            display:none;
+            display: none;
         }
+
         .slider {
             background-color: #ccc;
             bottom: 0;
@@ -177,6 +232,7 @@
             transition: .4s;
             border-radius: 24px;
         }
+
         .slider:before {
             background-color: #fff;
             bottom: 4px;
@@ -188,14 +244,17 @@
             width: 16px;
             border-radius: 50%;
         }
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: var(--accent);
         }
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(20px);
         }
     </style>
 </head>
+
 <body>
     <nav>
         <div class="logo">
@@ -203,26 +262,32 @@
         </div>
         <div class="nav-links">
             {% if user.is_authenticated %}
-                {% if user.role == 'TEACHER' %}
-                    <a href="{% url 'teacher_dashboard' %}">Bảng điều khiển</a>
-                {% elif user.role == 'STUDENT' %}
-                    <a href="{% url 'student_exam_list' %}">Danh sách bài thi</a>
-                {% endif %}
-                <span>Chào, {{ user.username }}</span>
-                <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-weight:500; font-family:var(--font-sans); font-size:1rem;">Đăng xuất</button>
-                </form>
-            {% else %}
-                <a href="{% url 'login' %}">Đăng nhập</a>
-                <a href="{% url 'register' %}" class="button">Đăng ký</a>
+
+            {% if user.role == 'TEACHER' %}
+            <a href="{% url 'teacher_dashboard' %}">Bảng điều khiển</a>
+            {% elif user.role == 'STUDENT' %}
+            <a href="{% url 'student_exam_list' %}">Danh sách bài thi</a>
+            <!-- THÊM LIÊN KẾT ĐẾN TRANG LỊCH SỬ -->
+            <a href="{% url 'student_result_history' %}">Lịch sử</a>
             {% endif %}
-            
+
+            <span>Chào, {{ user.first_name|default:user.username }}</span>
+            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit"
+                    style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-weight:500; font-family:var(--font-sans); font-size:1rem;">Đăng
+                    xuất</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}">Đăng nhập</a>
+            <a href="{% url 'register' %}" class="button">Đăng ký</a>
+            {% endif %}
+
             <div class="theme-switch-wrapper">
-              <label class="theme-switch" for="checkbox">
-                <input type="checkbox" id="checkbox" />
-                <div class="slider round"></div>
-              </label>
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round"></div>
+                </label>
             </div>
         </div>
     </nav>
@@ -249,10 +314,11 @@
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-            }    
+            }
         }
 
         themeToggle.addEventListener('change', switchTheme, false);
     </script>
 </body>
+
 </html>
