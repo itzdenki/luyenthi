@@ -59,7 +59,57 @@
         color: var(--text-secondary);
         grid-column: 1 / -1; /* Trải dài toàn bộ chiều rộng grid */
     }
+    .join-code-wrapper {
+        background-color: var(--bg-surface);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+    .join-code-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    .join-code-form .form-field {
+        flex-grow: 1;
+        margin-bottom: 0;
+    }
+    .alert-error {
+        background-color: var(--error);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
 </style>
+
+<!-- HIỂN THỊ THÔNG BÁO LỖI (NẾU CÓ) -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div class="alert-error">{{ message }}</div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- KHU VỰC NHẬP MÃ BÀI THI MỚI -->
+<div class="join-code-wrapper">
+    <h3 style="margin-top: 0; margin-bottom: 1rem;">Tham gia bài thi bằng mã</h3>
+    <form class="join-code-form" action="{% url 'join_exam_by_code' %}" method="post">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ code_form.code.id_for_label }}">Mã bài thi</label>
+            {{ code_form.code }}
+        </div>
+        <button type="submit" class="btn btn-primary">Tham gia</button>
+    </form>
+</div>
+
+
+<div class="page-header">
+    <h2>Hoặc chọn một bài thi có sẵn</h2>
+</div>
 
 <div class="page-header">
     <h2>Danh sách bài thi</h2>

@@ -65,7 +65,26 @@
         padding: 1rem 0;
         border-bottom: 1px solid var(--border);
     }
-    .passage-item:last-child { border-bottom: none; }
+    .passage-item:last-child { 
+        border-bottom: none; 
+    }
+    .exam-code-display {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .exam-code-display .code {
+        font-family: monospace;
+        font-size: 2em;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: var(--accent);
+    }
 </style>
 
 <div class="page-header">
@@ -80,6 +99,13 @@
     </div>
 </div>
 
+<div class="exam-code-display">
+    <div>
+        <h3 style="margin: 0 0 0.5rem 0;">Mã truy cập bài thi</h3>
+        <span class="code" id="exam-code-text">{{ exam.code }}</span>
+    </div>
+    <button class="btn btn-primary" id="copy-code-btn">Sao chép mã</button>
+</div>
 <!-- KHU VỰC QUẢN LÝ NGỮ LIỆU MỚI -->
 {% if passages %}
 <div class="passage-management">
@@ -119,4 +145,24 @@
 {% endfor %}
 
 <a href="{% url 'teacher_dashboard' %}" style="margin-top: 2rem; display: inline-block; color: var(--accent);">&larr; Quay lại Bảng điều khiển</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-code-btn');
+    const codeText = document.getElementById('exam-code-text').textContent;
+
+    copyBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(codeText).then(function() {
+            // Thay đổi text của nút để thông báo đã sao chép thành công
+            copyBtn.textContent = 'Đã sao chép!';
+            // Quay lại text cũ sau 2 giây
+            setTimeout(function() {
+                copyBtn.textContent = 'Sao chép mã';
+            }, 2000);
+        }, function(err) {
+            console.error('Không thể sao chép mã: ', err);
+        });
+    });
+});
+</script>
 {% endblock %}

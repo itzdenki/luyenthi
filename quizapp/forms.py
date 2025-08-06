@@ -4,29 +4,21 @@ from django.forms import inlineformset_factory
 from .models import User, Exam, Question, Choice, MatchPair, ExamSection, ReadingPassage
 
 class CustomUserCreationForm(UserCreationForm):
-    # Định nghĩa các trường mới cho form
     first_name = forms.CharField(max_length=150, required=True, label="Họ và Tên")
     email = forms.EmailField(required=True, label="Email")
     phone_number = forms.CharField(max_length=15, required=False, label="Số điện thoại")
     school = forms.CharField(max_length=255, required=False, label="Trường")
     school_class = forms.CharField(max_length=50, required=False, label="Lớp")
-    date_of_birth = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}), 
-        required=False, 
-        label="Ngày Sinh"
-    )
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False, label="Ngày Sinh")
     role = forms.ChoiceField(choices=User.Role.choices, label="Bạn là")
 
     class Meta(UserCreationForm.Meta):
         model = User
-        # Chỉ định các trường sẽ được render bởi form, username sẽ được xử lý tự động
-        fields = ("first_name", "email", 'phone_number', "school", "school_class", "date_of_birth", "role")
+        fields = ("first_name", "email", "phone_number", "school", "school_class", "date_of_birth", "role")
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        # Tự động gán username bằng email để đăng nhập
         user.username = self.cleaned_data["email"]
-        # Gán các trường tùy chỉnh
         user.first_name = self.cleaned_data["first_name"]
         user.phone_number = self.cleaned_data["phone_number"]
         user.school = self.cleaned_data["school"]
@@ -40,65 +32,39 @@ class CustomUserCreationForm(UserCreationForm):
 class ExamForm(forms.ModelForm):
     class Meta:
         model = Exam
-        fields = ['title', 'is_custom', 'subject', 'duration_minutes', 'description']
+        # Thêm 'visibility' vào danh sách fields
+        fields = ['title', 'visibility', 'is_custom', 'subject', 'duration_minutes', 'description']
         labels = {
             'title': 'Tiêu đề bài thi',
+            'visibility': 'Chế độ hiển thị',
             'is_custom': 'Sử dụng cấu trúc tùy chỉnh?',
             'subject': 'Môn học (áp dụng cho cấu trúc chuẩn)',
             'duration_minutes': 'Thời gian làm bài (phút)',
             'description': 'Mô tả',
+        }
+        # Sử dụng RadioSelect để giao diện đẹp hơn
+        widgets = {
+            'visibility': forms.RadioSelect,
         }
 
 class ReadingPassageForm(forms.ModelForm):
     class Meta:
         model = ReadingPassage
         fields = ['title', 'content']
-        labels = {
-            'title': 'Tiêu đề Ngữ liệu',
-            'content': 'Nội dung chi tiết',
-        }
-        widgets = {
-            'content': forms.Textarea(attrs={'rows': 20}),
-        }
+        labels = {'title': 'Tiêu đề Ngữ liệu', 'content': 'Nội dung chi tiết'}
+        widgets = {'content': forms.Textarea(attrs={'rows': 20})}
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ['text', 'question_type', 'order', 'passage']
-        labels = {
-            'text': 'Nội dung câu hỏi / Hướng dẫn',
-            'question_type': 'Loại câu hỏi',
-            'order': 'Thứ tự trong phần',
-            'passage': 'Ngữ liệu Đọc hiểu (chỉ dành cho TSA)',
-        }
+        labels = {'text': 'Nội dung câu hỏi / Hướng dẫn', 'question_type': 'Loại câu hỏi', 'order': 'Thứ tự trong phần', 'passage': 'Ngữ liệu Đọc hiểu (chỉ dành cho TSA)'}
         widgets = {'text': forms.Textarea(attrs={'rows': 3})}
 
-ChoiceFormSet = inlineformset_factory(
-    Question, Choice,
-    fields=('text', 'is_correct'),
-    extra=1, can_delete=True,
-    widgets={'text': forms.TextInput(attrs={'class': 'form-control'})}
-)
+class ExamCodeForm(forms.Form):
+    code = forms.CharField(label="", max_length=8, widget=forms.TextInput(attrs={'placeholder': 'Nhập mã bài thi tại đây...', 'style': 'text-transform: uppercase;'}))
 
-MatchPairFormSet = inlineformset_factory(
-    Question, MatchPair,
-    fields=('prompt', 'answer'),
-    extra=1, can_delete=True,
-    widgets={
-        'prompt': forms.TextInput(attrs={'class': 'form-control'}),
-        'answer': forms.TextInput(attrs={'class': 'form-control'}),
-    }
-)
+ChoiceFormSet = inlineformset_factory(Question, Choice, fields=('text', 'is_correct'), extra=1, can_delete=True, widgets={'text': forms.TextInput(attrs={'class': 'form-control'})})
+MatchPairFormSet = inlineformset_factory(Question, MatchPair, fields=('prompt', 'answer'), extra=1, can_delete=True, widgets={'prompt': forms.TextInput(attrs={'class': 'form-control'}), 'answer': forms.TextInput(attrs={'class': 'form-control'})})
+ExamSectionFormSet = inlineformset_factory(Exam, ExamSection, fields=('title', 'question_type', 'question_count', 'points_per_question', 'order'), extra=1, can_delete=True, widgets={'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tiêu đề phần, ví dụ: Trắc nghiệm'}), 'question_type': forms.Select(attrs={'class': 'form-control'}), 'question_count': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}), 'points_per_question': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.05', 'min': '0'}), 'order': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'})})
 
-ExamSectionFormSet = inlineformset_factory(
-    Exam, ExamSection,
-    fields=('title', 'question_type', 'question_count', 'points_per_question', 'order'),
-    extra=1, can_delete=True,
-    widgets={
-        'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tiêu đề phần, ví dụ: Trắc nghiệm'}),
-        'question_type': forms.Select(attrs={'class': 'form-control'}),
-        'question_count': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
-        'points_per_question': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.05', 'min': '0'}),
-        'order': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
-    }
-)

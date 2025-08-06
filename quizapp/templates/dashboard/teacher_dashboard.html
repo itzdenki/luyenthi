@@ -48,6 +48,15 @@
         padding: 0.5rem 1rem;
         border-radius: 0.5rem;
     }
+    .exam-code {
+        font-family: monospace;
+        font-size: 0.9em;
+        background-color: var(--bg-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--border);
+        color: var(--accent);
+    }
 </style>
 
 <div class="dashboard-header">
@@ -60,7 +69,10 @@
         <div class="exam-item">
             <div class="exam-info">
                 <h3>{{ exam.title }}</h3>
-                <small>{{ exam.get_subject_display }} | {{ exam.duration_minutes }} phút | {% if exam.is_custom %}Tùy chỉnh{% else %}Cấu trúc chuẩn{% endif %}</small>
+                <small>
+                    Mã bài thi: <span class="exam-code">{{ exam.code }}</span> | 
+                    {{ exam.get_subject_display }} | {{ exam.duration_minutes }} phút
+                </small>
             </div>
             <div class="exam-actions">
                 <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn btn-primary">Quản lý</a>

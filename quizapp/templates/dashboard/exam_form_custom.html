@@ -3,6 +3,19 @@
 {% block content %}
 <style>
     .form-wrapper { max-width: 800px; }
+    .form-field { margin-bottom: 1.5rem; }
+    .visibility-field ul, .is-custom-field ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+    }
+    .visibility-field li, .is-custom-field li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
     #standard-structure-fields, #custom-duration-field, #custom-structure-fields {
         display: none; /* Ẩn tất cả các trường tùy chọn ban đầu */
     }
@@ -10,13 +23,14 @@
         margin-top: 2rem;
         padding: 1.5rem;
         border: 1px solid var(--border);
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
     }
     .section-form {
-        padding: 1rem;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
         border-bottom: 1px solid var(--border);
     }
-    .section-form:last-child { border-bottom: none; }
+    .section-form:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
 </style>
 
 <div class="form-wrapper">
@@ -24,17 +38,41 @@
     <form method="post">
         {% csrf_token %}
         
-        <div class="form-field">{{ form.title.label_tag }} {{ form.title }}</div>
-        <div class="form-field">{{ form.description.label_tag }} {{ form.description }}</div>
-        <div class="form-field" style="display: flex; align-items: center; gap: 10px;">{{ form.is_custom }} {{ form.is_custom.label_tag }}</div>
-
-        <div id="standard-structure-fields">
-            <div class="form-field">{{ form.subject.label_tag }} {{ form.subject }}</div>
+        <div class="form-field">
+            <label for="{{ form.title.id_for_label }}">Tiêu đề bài thi</label>
+            {{ form.title }}
         </div>
 
+        <div class="form-field visibility-field">
+            <label>{{ form.visibility.label }}</label>
+            {{ form.visibility }}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.description.id_for_label }}">Mô tả</label>
+            {{ form.description }}
+        </div>
+
+        <div class="form-field is-custom-field">
+             {{ form.is_custom }}
+             <label for="{{ form.is_custom.id_for_label }}">{{ form.is_custom.label }}</label>
+        </div>
+
+        <!-- Phần chọn cấu trúc chuẩn -->
+        <div id="standard-structure-fields">
+            <div class="form-field">
+                <label for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+                {{ form.subject }}
+            </div>
+        </div>
+
+        <!-- Phần xây dựng cấu trúc tùy chỉnh -->
         <div id="custom-structure-fields">
             <div id="custom-duration-field">
-                <div class="form-field">{{ form.duration_minutes.label_tag }} {{ form.duration_minutes }}</div>
+                <div class="form-field">
+                    <label for="{{ form.duration_minutes.id_for_label }}">{{ form.duration_minutes.label }}</label>
+                    {{ form.duration_minutes }}
+                </div>
             </div>
             
             <div class="formset-wrapper">
@@ -42,10 +80,12 @@
                 {{ section_formset.management_form }}
                 <div id="section-formset-container">
                     {% for form in section_formset %}
-                        <div class="section-form">{{ form.as_p }}</div>
+                        <div class="section-form">
+                            {{ form.as_p }}
+                        </div>
                     {% endfor %}
                 </div>
-                <button type="button" class="btn btn-primary" id="add-section-btn" style="margin-top: 1rem;">Thêm phần thi</button>
+                <button type="button" id="add-section-btn" class="btn btn-primary" style="margin-top: 1rem;">Thêm phần thi</button>
             </div>
         </div>
         
@@ -56,8 +96,16 @@
     </form>
 </div>
 
+<!-- Template trống cho JavaScript -->
+<template id="empty-section-form">
+    <div class="section-form">
+        {{ section_formset.empty_form.as_p }}
+        <button type="button" class="btn btn-delete-form" style="background:var(--error); color:white; border:none; cursor:pointer; padding: 0.5rem 1rem; border-radius: 0.5rem;">Xóa phần này</button>
+    </div>
+</template>
+
 <script>
-    // (JavaScript để ẩn/hiện các trường và thêm/xóa formset giữ nguyên)
+document.addEventListener('DOMContentLoaded', function() {
     const isCustomCheckbox = document.getElementById('id_is_custom');
     const standardFields = document.getElementById('standard-structure-fields');
     const customFields = document.getElementById('custom-structure-fields');
@@ -74,7 +122,30 @@
             customDurationField.style.display = 'none';
         }
     }
+
     isCustomCheckbox.addEventListener('change', toggleStructureFields);
     toggleStructureFields();
+
+    // Logic thêm/xóa formset cho các phần thi
+    const addSectionBtn = document.getElementById('add-section-btn');
+    const sectionContainer = document.getElementById('section-formset-container');
+    const totalFormsInput = document.querySelector('input[name="sections-TOTAL_FORMS"]');
+    const template = document.getElementById('empty-section-form');
+
+    addSectionBtn.addEventListener('click', function() {
+        let formNum = parseInt(totalFormsInput.value);
+        const newFormHtml = template.innerHTML.replace(/__prefix__/g, formNum);
+        
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = newFormHtml;
+        const newFormRow = newDiv.firstElementChild;
+
+        sectionContainer.append(newFormRow);
+        
+        newFormRow.querySelector('.btn-delete-form').addEventListener('click', () => newFormRow.remove());
+        
+        totalFormsInput.value = formNum + 1;
+    });
+});
 </script>
 {% endblock %}
