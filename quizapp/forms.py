@@ -64,6 +64,25 @@ class QuestionForm(forms.ModelForm):
 class ExamCodeForm(forms.Form):
     code = forms.CharField(label="", max_length=8, widget=forms.TextInput(attrs={'placeholder': 'Nhập mã bài thi tại đây...', 'style': 'text-transform: uppercase;'}))
 
+class UserInfoUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        # Các trường người dùng có thể chỉnh sửa
+        fields = ['first_name', 'email', 'phone_number', 'school', 'school_class', 'date_of_birth']
+        labels = {
+            'first_name': 'Họ và Tên',
+            'email': 'Email (không thể thay đổi)',
+            'phone_number': 'Số điện thoại',
+            'school': 'Trường',
+            'school_class': 'Lớp',
+            'date_of_birth': 'Ngày Sinh',
+        }
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            # Email không cho phép chỉnh sửa để đảm bảo tính duy nhất
+            'email': forms.EmailInput(attrs={'readonly': True, 'style': 'background-color: var(--border);'}),
+        }
+        
 ChoiceFormSet = inlineformset_factory(Question, Choice, fields=('text', 'is_correct'), extra=1, can_delete=True, widgets={'text': forms.TextInput(attrs={'class': 'form-control'})})
 MatchPairFormSet = inlineformset_factory(Question, MatchPair, fields=('prompt', 'answer'), extra=1, can_delete=True, widgets={'prompt': forms.TextInput(attrs={'class': 'form-control'}), 'answer': forms.TextInput(attrs={'class': 'form-control'})})
 ExamSectionFormSet = inlineformset_factory(Exam, ExamSection, fields=('title', 'question_type', 'question_count', 'points_per_question', 'order'), extra=1, can_delete=True, widgets={'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tiêu đề phần, ví dụ: Trắc nghiệm'}), 'question_type': forms.Select(attrs={'class': 'form-control'}), 'question_count': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}), 'points_per_question': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.05', 'min': '0'}), 'order': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'})})

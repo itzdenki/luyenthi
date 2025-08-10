@@ -21,6 +21,7 @@ urlpatterns = [
     path('dashboard/exam/<int:exam_pk>/question/create/', views.question_create_update, name='question_create'),
     path('dashboard/exam/<int:exam_pk>/question/<int:question_pk>/update/', views.question_create_update, name='question_update'),
     path('dashboard/exam/question/<int:pk>/delete/', views.QuestionDeleteView.as_view(), name='question_delete'),
+    path('dashboard/exam/<int:pk>/history/', views.ExamResultHistoryView.as_view(), name='exam_result_history'),
 
     # Student Exam Flow
     path('exams/', views.StudentExamListView.as_view(), name='student_exam_list'),
@@ -31,4 +32,6 @@ urlpatterns = [
     path('result/<int:pk>/', views.student_exam_result, name='student_exam_result'),
     # BỔ SUNG URL CHO TRANG LỊCH SỬ
     path('history/', views.StudentResultHistoryView.as_view(), name='student_result_history'),
+
+    path('account/', views.AccountInfoUpdateView.as_view(), name='account_info'),
 ]

@@ -7,8 +7,9 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
-from .models import Exam, Question, Result, ReadingPassage
-from .forms import (CustomUserCreationForm, ExamForm, QuestionForm, ChoiceFormSet, MatchPairFormSet, ExamSectionFormSet, ReadingPassageForm, ExamCodeForm)
+from .models import Exam, Question, Result, ReadingPassage, User
+from .forms import CustomUserCreationForm, ExamForm, QuestionForm, ChoiceFormSet, MatchPairFormSet, ExamSectionFormSet, ReadingPassageForm, ExamCodeForm, UserInfoUpdateForm
+
 import random
 
 # --- VIEWS XÁC THỰC VÀ TRANG CHỦ ---
@@ -194,6 +195,10 @@ def exam_detail_teacher(request, pk):
 @user_passes_test(is_teacher)
 @transaction.atomic
 def question_create_update(request, exam_pk, question_pk=None):
+    """
+    View này đã được viết lại hoàn toàn để xử lý việc tạo/cập nhật câu hỏi
+    và tất cả các loại lựa chọn/formset một cách chính xác.
+    """
     exam = get_object_or_404(Exam, pk=exam_pk)
     if exam.owner != request.user:
         return HttpResponseForbidden("Bạn không có quyền truy cập.")
@@ -204,6 +209,8 @@ def question_create_update(request, exam_pk, question_pk=None):
     else:
         question = Question(exam=exam)
         page_title = "Tạo câu hỏi mới"
+        
+        # Nhận giá trị ban đầu từ URL để điền sẵn vào form
         initial_type = request.GET.get('type')
         initial_order = request.GET.get('order')
         if initial_type in Question.QuestionType.values:
@@ -211,30 +218,46 @@ def question_create_update(request, exam_pk, question_pk=None):
         if initial_order and initial_order.isdigit():
             question.order = int(initial_order)
 
+    # Giới hạn queryset cho trường passage trong form
     form = QuestionForm(instance=question)
     form.fields['passage'].queryset = ReadingPassage.objects.filter(exam=exam)
-
-    question_type = request.POST.get('question_type') if request.method == 'POST' else getattr(question, 'question_type', None)
-    FormSet = None
-    if question_type in [Question.QuestionType.SINGLE, Question.QuestionType.MULTIPLE, Question.QuestionType.TRUE_FALSE, Question.QuestionType.FILL_IN_BLANK]:
-        FormSet = ChoiceFormSet
-    elif question_type == Question.QuestionType.MATCHING:
-        FormSet = MatchPairFormSet
 
     if request.method == 'POST':
         form = QuestionForm(request.POST, instance=question)
         form.fields['passage'].queryset = ReadingPassage.objects.filter(exam=exam)
-        formset = FormSet(request.POST, instance=question, prefix='choices') if FormSet else None
-        if form.is_valid() and (formset is None or formset.is_valid()):
-            saved_question = form.save()
-            if formset:
-                formset.instance = saved_question
-                formset.save()
-            return redirect('exam_detail_teacher', pk=exam.pk)
-    else:
-        formset = FormSet(instance=question, prefix='choices') if FormSet else None
+        
+        # Khởi tạo cả hai loại formset với dữ liệu POST và prefix riêng
+        choice_formset = ChoiceFormSet(request.POST, instance=question, prefix='choices')
+        match_formset = MatchPairFormSet(request.POST, instance=question, prefix='matches')
 
-    return render(request, 'dashboard/question_form.html', {'form': form, 'formset': formset, 'exam': exam, 'page_title': page_title})
+        # Xác định formset nào cần được xác thực dựa trên loại câu hỏi được gửi lên
+        q_type = form.data.get('question_type')
+        formset_to_validate = None
+        if q_type in [Question.QuestionType.SINGLE, Question.QuestionType.MULTIPLE, Question.QuestionType.TRUE_FALSE, Question.QuestionType.FILL_IN_BLANK]:
+            formset_to_validate = choice_formset
+        elif q_type == Question.QuestionType.MATCHING:
+            formset_to_validate = match_formset
+
+        if form.is_valid() and (formset_to_validate is None or formset_to_validate.is_valid()):
+            saved_question = form.save()
+            if formset_to_validate:
+                formset_to_validate.instance = saved_question
+                formset_to_validate.save()
+            return redirect('exam_detail_teacher', pk=exam.pk)
+            
+    else: # GET request
+        # Luôn khởi tạo cả hai formset để gửi đến template
+        choice_formset = ChoiceFormSet(instance=question, prefix='choices')
+        match_formset = MatchPairFormSet(instance=question, prefix='matches')
+
+    context = {
+        'form': form,
+        'choice_formset': choice_formset,
+        'match_formset': match_formset,
+        'exam': exam,
+        'page_title': page_title,
+    }
+    return render(request, 'dashboard/question_form.html', context)
 
 class QuestionDeleteView(QuestionOwnerRequiredMixin, DeleteView):
     model = Question
@@ -357,3 +380,51 @@ class StudentResultHistoryView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = "Lịch sử làm bài"
         return context
+
+class ExamResultHistoryView(TeacherRequiredMixin, ListView):
+    model = Result
+    template_name = 'dashboard/exam_result_history.html'
+    context_object_name = 'results'
+    paginate_by = 20
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Ghi đè phương thức dispatch để kiểm tra quyền sở hữu bài thi
+        trước khi hiển thị danh sách kết quả.
+        """
+        self.exam = get_object_or_404(Exam, pk=self.kwargs['pk'])
+        if self.exam.owner != self.request.user:
+            return HttpResponseForbidden("Bạn không có quyền xem lịch sử của bài thi này.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Lấy tất cả kết quả của bài thi này, sắp xếp theo điểm từ cao đến thấp
+        queryset = Result.objects.filter(exam=self.exam).order_by('-score', '-submitted_at')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exam'] = self.exam
+        context['page_title'] = f"Lịch sử nộp bài: {self.exam.title}"
+        return context
+    
+class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserInfoUpdateForm
+    template_name = 'account/info.html'
+    success_url = reverse_lazy('account_info') # Tải lại trang sau khi cập nhật thành công
+    login_url = 'login'
+
+    def get_object(self, queryset=None):
+        # Đảm bảo người dùng chỉ có thể chỉnh sửa thông tin của chính họ
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = "Thông tin tài khoản"
+        return context
+
+    def form_valid(self, form):
+        # Thêm một thông báo thành công để người dùng biết
+        messages.success(self.request, "Thông tin tài khoản đã được cập nhật thành công!")
+        return super().form_valid(form)

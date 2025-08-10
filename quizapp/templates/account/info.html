@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="form-wrapper">
+    <h2>{{ page_title }}</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <p style="color: var(--success); background-color: var(--bg-surface); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--success);">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+            {{ form.first_name }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+            {{ form.phone_number }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.school.id_for_label }}">{{ form.school.label }}</label>
+            {{ form.school }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.school_class.id_for_label }}">{{ form.school_class.label }}</label>
+            {{ form.school_class }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
+            {{ form.date_of_birth }}
+        </div>
+        
+        <button type="submit" class="btn btn-cta" style="width: 100%; margin-top: 1rem;">Cập nhật thông tin</button>
+    </form>
+</div>
+{% endblock %}
