@@ -22,6 +22,7 @@ urlpatterns = [
     path('dashboard/exam/<int:exam_pk>/question/<int:question_pk>/update/', views.question_create_update, name='question_update'),
     path('dashboard/exam/question/<int:pk>/delete/', views.QuestionDeleteView.as_view(), name='question_delete'),
     path('dashboard/exam/<int:pk>/history/', views.ExamResultHistoryView.as_view(), name='exam_result_history'),
+    path('dashboard/result/<int:pk>/view/', views.teacher_result_detail, name='teacher_result_detail'),
 
     # Student Exam Flow
     path('exams/', views.StudentExamListView.as_view(), name='student_exam_list'),

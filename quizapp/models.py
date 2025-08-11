@@ -119,5 +119,8 @@ class Result(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     score = models.FloatField(default=0.0, verbose_name="Điểm số")
     total = models.IntegerField(verbose_name="Tổng số câu")
+
+    submission = models.JSONField(null=True, blank=True, verbose_name="Bài làm của học sinh")
+    
     submitted_at = models.DateTimeField(auto_now_add=True)
     def __str__(self): return f"Kết quả của {self.student.username} cho {self.exam.title}"

@@ -309,10 +309,102 @@ def student_exam_take(request, pk):
 
     if request.method == 'POST':
         final_score = 0.0
-        # ... (logic chấm điểm chi tiết) ...
-        result = Result.objects.create(student=request.user, exam=exam, score=final_score, total=len(questions))
+        student_submission = {} # Dictionary để lưu bài làm của học sinh
+
+        # Tạo một bản đồ điểm cho các bài thi tùy chỉnh để tra cứu nhanh hơn
+        points_map = {}
+        if exam.is_custom:
+            for section in exam.sections.all():
+                points_map[section.question_type] = section.points_per_question
+
+        for question in questions:
+            q_id = str(question.id)
+            
+            # --- Xử lý và chấm điểm cho từng loại câu hỏi ---
+
+            # 1. Trắc nghiệm - Chọn 1
+            if question.question_type == Question.QuestionType.SINGLE:
+                selected_choice_id = request.POST.get(f'question{q_id}')
+                student_submission[q_id] = selected_choice_id
+                if selected_choice_id and question.choices.filter(id=selected_choice_id, is_correct=True).exists():
+                    if exam.is_custom:
+                        final_score += points_map.get(question.question_type, 0.25)
+                    elif exam.subject == 'TSA':
+                        final_score += 1.0
+                    else:
+                        final_score += 0.25
+
+            # 2. Trắc nghiệm - Chọn nhiều
+            elif question.question_type == Question.QuestionType.MULTIPLE:
+                selected_ids = request.POST.getlist(f'question{q_id}')
+                student_submission[q_id] = selected_ids
+                correct_ids = set(str(c.id) for c in question.choices.filter(is_correct=True))
+                if set(selected_ids) == correct_ids:
+                    final_score += points_map.get(question.question_type, 0.25) if exam.is_custom else 0.25
+
+            # 3. Đúng / Sai
+            elif question.question_type == Question.QuestionType.TRUE_FALSE:
+                sub_answers = {}
+                correct_sub_answers = 0
+                for choice in question.choices.all():
+                    user_answer = request.POST.get(f'question{q_id}_choice{choice.id}') # "Đúng" hoặc "Sai"
+                    sub_answers[str(choice.id)] = user_answer
+                    correct_answer = "Đúng" if choice.is_correct else "Sai"
+                    if user_answer == correct_answer:
+                        correct_sub_answers += 1
+                student_submission[q_id] = sub_answers
+
+                if exam.is_custom:
+                    final_score += points_map.get(question.question_type, 0.25) * correct_sub_answers
+                else: # Thang điểm chuẩn THPT
+                    if correct_sub_answers == 1: final_score += 0.1
+                    elif correct_sub_answers == 2: final_score += 0.25
+                    elif correct_sub_answers == 3: final_score += 0.5
+                    elif correct_sub_answers == 4: final_score += 1.0
+
+            # 4. Điền vào chỗ trống
+            elif question.question_type == Question.QuestionType.FILL_IN_BLANK:
+                user_answer = request.POST.get(f'question{q_id}', '').strip()
+                student_submission[q_id] = user_answer
+                correct_choice = question.choices.first()
+                if correct_choice and user_answer.lower() == correct_choice.text.strip().lower():
+                    if exam.is_custom:
+                        final_score += points_map.get(question.question_type, 0.25)
+                    else:
+                        final_score += 0.5 if exam.subject == 'MATH' else 0.25
+
+            # 5. Ghép đôi
+            elif question.question_type == Question.QuestionType.MATCHING:
+                all_pairs_correct = True
+                sub_answers = {}
+                for pair in question.match_pairs.all():
+                    user_answer_for_prompt = request.POST.get(f'question{q_id}_prompt{pair.id}')
+                    sub_answers[str(pair.id)] = user_answer_for_prompt
+                    if user_answer_for_prompt != pair.answer:
+                        all_pairs_correct = False
+                student_submission[q_id] = sub_answers
+                if all_pairs_correct:
+                    final_score += points_map.get(question.question_type, 1.0) if exam.is_custom else 1.0
+
+        # Lưu bài làm vào session trước khi chuyển hướng
+        request.session['last_exam_submission'] = student_submission
+        
+        result = Result.objects.create(
+            student=request.user, 
+            exam=exam, 
+            score=final_score, 
+            total=len(questions),
+            submission=student_submission # Thêm dòng này
+        )
         return redirect('student_exam_result', pk=result.pk)
     
+    # Xử lý cho GET request
+    for q in questions:
+        if q.question_type == 'MATCHING':
+            answers = list(p.answer for p in q.match_pairs.all())
+            random.shuffle(answers)
+            q.shuffled_answers = answers
+
     context = {'exam': exam, 'questions': questions, 'duration_seconds': exam.duration_minutes * 60}
     return render(request, 'student/exam_take.html', context)
 
@@ -363,7 +455,46 @@ def student_exam_take_sectional(request, pk, section_order):
 @login_required(login_url='login')
 def student_exam_result(request, pk):
     result = get_object_or_404(Result, pk=pk, student=request.user)
-    return render(request, 'student/exam_result.html', {'result': result})
+    
+    # CẬP NHẬT: Lấy bài làm từ đối tượng result thay vì session
+    submission = result.submission or {}
+    
+    questions = result.exam.questions.prefetch_related('choices').all().order_by('order')
+    
+    for question in questions:
+        q_id_str = str(question.id)
+        question.student_answer = submission.get(q_id_str)
+        
+    context = {
+        'result': result,
+        'questions': questions,
+    }
+        
+    return render(request, 'student/exam_result.html', context)
+
+# TẠO VIEW MỚI CHO GIÁO VIÊN XEM BÀI LÀM
+@login_required
+@user_passes_test(is_teacher)
+def teacher_result_detail(request, pk):
+    result = get_object_or_404(Result, pk=pk)
+    
+    # Kiểm tra quyền sở hữu
+    if result.exam.owner != request.user:
+        return HttpResponseForbidden("Bạn không có quyền xem bài làm này.")
+
+    submission = result.submission or {}
+    questions = result.exam.questions.prefetch_related('choices').all().order_by('order')
+    
+    for question in questions:
+        q_id_str = str(question.id)
+        question.student_answer = submission.get(q_id_str)
+
+    context = {
+        'result': result,
+        'questions': questions,
+        'page_title': f"Bài làm của {result.student.first_name or result.student.username}"
+    }
+    return render(request, 'dashboard/student_submission_detail.html', context)
 
 # BỔ SUNG VIEW MỚI CHO TRANG LỊCH SỬ
 class StudentResultHistoryView(LoginRequiredMixin, ListView):
