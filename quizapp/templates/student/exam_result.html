@@ -24,30 +24,23 @@
 </div>
 <div class="answer-review-container" id="answer-review-container">
     <h2 style="margin-bottom: 2rem; text-align: center;">{% trans "Đáp án chi tiết" %}</h2>
-    {% macro render_review(question, counter) %}
-        <h4>{% trans "Câu" %} {{ counter }}: {{ question.text|safe }}</h4>
-        <div style="margin-top: 1rem;">
-            {% for choice in question.choices.all %}
-                {% with choice_id_str=choice.id|stringformat:"s" %}
-                    <div class="review-choice-item {% if choice.is_correct %}correct-answer{% endif %} {% if choice_id_str == question.student_answer and not choice.is_correct %}user-incorrect{% endif %}">
-                        <input type="radio" disabled {% if choice_id_str == question.student_answer %}checked{% endif %}>
-                        <label>{{ choice.text|safe }}</label>
-                    </div>
-                {% endwith %}
-            {% endfor %}
-        </div>
-    {% endmacro %}
+    
     {% for passage in passages %}
         <div class="passage-box">
             <h4>{{ passage.title }}</h4>
             <p>{{ passage.content|safe|linebreaks }}</p>
         </div>
         {% for question in passage.related_questions %}
-            <div class="review-question-box">{{ render_review(question, forloop.parentloop.counter|add:forloop.counter0) }}</div>
+            <div class="review-question-box">
+                {% include 'student/_review_question_snippet.html' with question=question counter=forloop.parentloop.counter|add:forloop.counter0 %}
+            </div>
         {% endfor %}
     {% endfor %}
+
     {% for question in non_passage_questions %}
-        <div class="review-question-box">{{ render_review(question, forloop.counter) }}</div>
+        <div class="review-question-box">
+            {% include 'student/_review_question_snippet.html' with question=question counter=forloop.counter %}
+        </div>
     {% endfor %}
 </div>
 <script>

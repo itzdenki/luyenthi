@@ -1,0 +1,41 @@
+{% load i18n %}
+
+<h4 class="question-text">{% trans "Câu" %} {{ counter }}: {{ question.text|safe }}</h4>
+
+{% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
+    {% for choice in question.choices.all %}
+    <div class="choice-item">
+        <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" {% if question.question_type == 'SINGLE' %}required{% endif %}>
+        <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
+    </div>
+    {% endfor %}
+
+{% elif question.question_type == 'TRUE_FALSE' %}
+    {% for choice in question.choices.all %}
+    <div class="true-false-item">
+        <span>{{ choice.text|safe }}</span>
+        <div class="true-false-options">
+            <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Đúng" required> {% trans "Đúng" %}</label>
+            <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Sai" required> {% trans "Sai" %}</label>
+        </div>
+    </div>
+    {% endfor %}
+
+{% elif question.question_type == 'FILL_IN_BLANK' %}
+    <input type="text" name="question{{ question.id }}" class="fill-in-blank-input" required>
+
+{% elif question.question_type == 'MATCHING' %}
+    <div class="matching-container">
+        {% for pair in question.match_pairs.all %}
+            <div class="matching-prompt">{{ pair.prompt|safe }}</div>
+            <div>
+                <select name="question{{ question.id }}_prompt{{ pair.id }}" class="matching-select" required>
+                    <option value="">-- {% trans "Chọn đáp án" %} --</option>
+                    {% for answer in question.shuffled_answers %}
+                    <option value="{{ answer }}">{{ answer }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

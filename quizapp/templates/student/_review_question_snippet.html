@@ -1,0 +1,41 @@
+{% load i18n %}
+
+<h4>{% trans "Câu" %} {{ counter }}: {{ question.text|safe }}</h4>
+<div style="margin-top: 1rem;">
+    {% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
+        {% for choice in question.choices.all %}
+            {% with choice_id_str=choice.id|stringformat:"s" %}
+                <div class="review-choice-item 
+                    {% if choice.is_correct %}correct-answer{% endif %}
+                    {% if choice_id_str == question.student_answer and not choice.is_correct %}user-incorrect{% endif %}
+                ">
+                    <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" disabled 
+                           {% if question.question_type == 'SINGLE' and choice_id_str == question.student_answer %}checked{% endif %}
+                           {% if question.question_type == 'MULTIPLE' and choice_id_str in question.student_answer %}checked{% endif %}>
+                    <label>{{ choice.text|safe }}</label>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    {% elif question.question_type == 'TRUE_FALSE' %}
+        {% for choice in question.choices.all %}
+            {% if choice.is_correct %}
+                {% with correct_answer_str="Đúng" %}
+                     <div class="review-choice-item {% if choice.student_answer == correct_answer_str %}correct-answer{% else %}user-incorrect{% endif %}">
+                        <span>{{ choice.text|safe }}</span>
+                        <span style="font-weight: bold;">{% trans "Bạn chọn" %}: {{ choice.student_answer|default:"(Không trả lời)" }} | {% trans "Đáp án" %}: {{ correct_answer_str }}</span>
+                    </div>
+                {% endwith %}
+            {% else %}
+                {% with correct_answer_str="Sai" %}
+                     <div class="review-choice-item {% if choice.student_answer == correct_answer_str %}correct-answer{% else %}user-incorrect{% endif %}">
+                        <span>{{ choice.text|safe }}</span>
+                        <span style="font-weight: bold;">{% trans "Bạn chọn" %}: {{ choice.student_answer|default:"(Không trả lời)" }} | {% trans "Đáp án" %}: {{ correct_answer_str }}</span>
+                    </div>
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+    {% elif question.question_type == 'FILL_IN_BLANK' %}
+        <p>{% trans "Bạn đã trả lời" %}: <strong {% if question.choices.first.text|lower == question.student_answer|lower %}style="color: var(--success);"{% else %}style="color: var(--error);"{% endif %}>{{ question.student_answer|default:"(Không trả lời)" }}</strong></p>
+        <p>{% trans "Đáp án đúng" %}: <strong style="color: var(--success);">{{ question.choices.first.text }}</strong></p>
+    {% endif %}
+</div>

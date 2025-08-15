@@ -443,19 +443,34 @@ def student_exam_take_sectional(request, pk, section_order):
 @login_required(login_url='login')
 def student_exam_result(request, pk):
     result = get_object_or_404(Result, pk=pk, student=request.user)
+    
     submission = result.submission or {}
     all_questions = list(result.exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('passage__order', 'order'))
     passages = list(result.exam.passages.all().order_by('order'))
 
+    # Xử lý và đính kèm câu trả lời vào từng đối tượng
     for question in all_questions:
-        question.student_answer = submission.get(str(question.id))
+        q_id_str = str(question.id)
+        student_answer = submission.get(q_id_str)
+        question.student_answer = student_answer
 
+        # Xử lý riêng cho câu hỏi Đúng/Sai có nhiều ý
+        if question.question_type == Question.QuestionType.TRUE_FALSE and isinstance(student_answer, dict):
+            for choice in question.choices.all():
+                choice.student_answer = student_answer.get(str(choice.id))
+
+    # Nhóm câu hỏi vào ngữ liệu
     for passage in passages:
         passage.related_questions = [q for q in all_questions if q.passage_id == passage.id]
     
     non_passage_questions = [q for q in all_questions if q.passage_id is None]
         
-    context = {'result': result, 'passages': passages, 'non_passage_questions': non_passage_questions}
+    context = {
+        'result': result,
+        'passages': passages,
+        'non_passage_questions': non_passage_questions,
+    }
+        
     return render(request, 'student/exam_result.html', context)
 
 class StudentResultHistoryView(LoginRequiredMixin, ListView):
