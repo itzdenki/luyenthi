@@ -1,44 +1,25 @@
+from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import gettext_lazy as _
 from .models import User, Exam, Question, Choice, MatchPair, ReadingPassage, ExamSection
 
 class CustomUserAdmin(UserAdmin):
-    # Định nghĩa lại fieldsets để loại bỏ 'last_name'
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "email")}), # Đã xóa last_name
-        (
-            "Thông tin bổ sung",
-            {"fields": ("phone_number", "school", "school_class", "date_of_birth", "role")},
-        ),
-        (
-            _("Permissions"),
-            {
-                "fields": (
-                    "is_active",
-                    "is_staff",
-                    "is_superuser",
-                    "groups",
-                    "user_permissions",
-                ),
-            },
-        ),
+        (_("Personal info"), {"fields": ("first_name", "email")}),
+        (_("Thông tin bổ sung"), {"fields": ("phone_number", "school", "school_class", "date_of_birth", "role")}),
+        (_("Permissions"), {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-    
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Thông tin cá nhân', {'fields': ('first_name', 'email', 'phone_number', 'school', 'school_class', 'date_of_birth', 'role')}),
+        (_('Thông tin cá nhân'), {'fields': ('first_name', 'email', 'phone_number', 'school', 'school_class', 'date_of_birth', 'role')}),
     )
     list_display = ('username', 'email', 'first_name', 'phone_number', 'is_staff', 'role')
     search_fields = ('username', 'first_name', 'email', 'phone_number')
 
-# Hủy đăng ký UserAdmin mặc định và đăng ký lại với phiên bản tùy chỉnh
 if admin.site.is_registered(User):
     admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-# --- Inlines for Question Admin ---
-# Các form con sẽ hiển thị bên trong trang chi tiết của Question
 
 # Inline cho Choice (dùng cho Trắc nghiệm, Đúng/Sai, Điền khuyết)
 class ChoiceInline(admin.TabularInline):

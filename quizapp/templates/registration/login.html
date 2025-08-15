@@ -1,24 +1,23 @@
 {% extends "base.html" %}
-
-{% block title %}Đăng nhập{% endblock %}
-
+{% load i18n %}
+{% block title %}{% trans "Đăng nhập" %}{% endblock %}
 {% block content %}
 <div class="form-wrapper">
-    <h2>Đăng nhập</h2>
+    <h2>{% trans "Đăng nhập" %}</h2>
     <form method="post">
         {% csrf_token %}
         <div class="form-field">
-            <label for="{{ form.username.id_for_label }}">Email</label>
+            <label for="{{ form.username.id_for_label }}">{% trans "Email" %}</label>
             {{ form.username }}
         </div>
         <div class="form-field">
-            <label for="{{ form.password.id_for_label }}">Mật khẩu</label>
+            <label for="{{ form.password.id_for_label }}">{% trans "Mật khẩu" %}</label>
             {{ form.password }}
         </div>
         {% if form.errors %}
-            <p style="color: var(--error);">Email hoặc mật khẩu không chính xác.</p>
+            <p style="color: var(--error);">{% trans "Email hoặc mật khẩu không chính xác." %}</p>
         {% endif %}
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Đăng nhập</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">{% trans "Đăng nhập" %}</button>
     </form>
 </div>
 {% endblock %}

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Chỉnh sửa Ngữ liệu{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Chỉnh sửa Ngữ liệu" %}{% endblock %}
 {% block content %}
 <div class="form-wrapper" style="max-width: 800px;">
-    <h2>Chỉnh sửa Ngữ liệu: {{ object.title }}</h2>
+    <h2>{% trans "Chỉnh sửa Ngữ liệu" %}: {{ object.title }}</h2>
     <p style="text-align: center; margin-top: -1rem; margin-bottom: 2rem; color: var(--text-secondary);">
-        Bài thi: <strong>{{ object.exam.title }}</strong>
+        {% trans "Bài thi" %}: <strong>{{ object.exam.title }}</strong>
     </p>
     <form method="post">
         {% csrf_token %}
@@ -17,8 +18,8 @@
             {{ form.content }}
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
-            <a href="{% url 'exam_detail_teacher' pk=object.exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Hủy bỏ</a>
-            <button type="submit" class="btn btn-cta">Lưu Ngữ liệu</button>
+            <a href="{% url 'exam_detail_teacher' pk=object.exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Hủy bỏ" %}</a>
+            <button type="submit" class="btn btn-cta">{% trans "Lưu Ngữ liệu" %}</button>
         </div>
     </form>
 </div>

@@ -1,0 +1,959 @@
+# English translation for PACKAGE
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-14 22:29+0700\n"
+"PO-Revision-Date: 2025-08-15 00:00+0700\n"
+"Last-Translator: Gemini <gemini@google.com>\n"
+"Language-Team: English <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\quizapp\admin.py:9
+msgid "Personal info"
+msgstr "Personal info"
+
+#: .\quizapp\admin.py:10
+msgid "Thông tin bổ sung"
+msgstr "Additional information"
+
+#: .\quizapp\admin.py:11
+msgid "Permissions"
+msgstr "Permissions"
+
+#: .\quizapp\admin.py:12
+msgid "Important dates"
+msgstr "Important dates"
+
+#: .\quizapp\admin.py:15
+msgid "Thông tin cá nhân"
+msgstr "Personal information"
+
+#: .\quizapp\forms.py:8 .\quizapp\forms.py:37 .\quizapp\models.py:21
+#: .\quizapp\templates\registration\register.html:15
+msgid "Họ và Tên"
+msgstr "Full Name"
+
+#: .\quizapp\forms.py:9
+#: .\quizapp\templates\dashboard\exam_result_history.html:28
+#: .\quizapp\templates\registration\login.html:10
+msgid "Email"
+msgstr "Email"
+
+#: .\quizapp\forms.py:10 .\quizapp\forms.py:37 .\quizapp\models.py:29
+#: .\quizapp\templates\registration\register.html:17
+msgid "Số điện thoại"
+msgstr "Phone number"
+
+#: .\quizapp\forms.py:11 .\quizapp\forms.py:37 .\quizapp\models.py:26
+#: .\quizapp\templates\registration\register.html:18
+msgid "Trường"
+msgstr "School"
+
+#: .\quizapp\forms.py:12 .\quizapp\forms.py:37 .\quizapp\models.py:27
+#: .\quizapp\templates\registration\register.html:19
+msgid "Lớp"
+msgstr "Class"
+
+#: .\quizapp\forms.py:13 .\quizapp\forms.py:37 .\quizapp\models.py:28
+#: .\quizapp\templates\registration\register.html:20
+msgid "Ngày Sinh"
+msgstr "Date of Birth"
+
+#: .\quizapp\forms.py:14 .\quizapp\templates\registration\register.html:21
+msgid "Bạn là"
+msgstr "You are a"
+
+#: .\quizapp\forms.py:37
+msgid "Email (không thể thay đổi)"
+msgstr "Email (cannot be changed)"
+
+#: .\quizapp\forms.py:44
+msgid "Tiêu đề bài thi"
+msgstr "Exam title"
+
+#: .\quizapp\forms.py:44 .\quizapp\models.py:57
+msgid "Chế độ hiển thị"
+msgstr "Visibility mode"
+
+#: .\quizapp\forms.py:44
+msgid "Sử dụng cấu trúc tùy chỉnh?"
+msgstr "Use custom structure?"
+
+#: .\quizapp\forms.py:44
+msgid "Môn học (áp dụng cho cấu trúc chuẩn)"
+msgstr "Subject (applies to standard structure)"
+
+#: .\quizapp\forms.py:44 .\quizapp\models.py:54
+msgid "Thời gian làm bài (phút)"
+msgstr "Duration (minutes)"
+
+#: .\quizapp\forms.py:44 .\quizapp\models.py:51
+msgid "Mô tả"
+msgstr "Description"
+
+#: .\quizapp\forms.py:51 .\quizapp\models.py:66
+msgid "Tiêu đề Ngữ liệu"
+msgstr "Passage Title"
+
+#: .\quizapp\forms.py:51
+msgid "Nội dung chi tiết"
+msgstr "Detailed content"
+
+#: .\quizapp\forms.py:58 .\quizapp\models.py:83
+msgid "Nội dung câu hỏi / Hướng dẫn"
+msgstr "Question content / Instructions"
+
+#: .\quizapp\forms.py:58 .\quizapp\models.py:84 .\quizapp\models.py:93
+msgid "Loại câu hỏi"
+msgstr "Question type"
+
+#: .\quizapp\forms.py:58 .\quizapp\models.py:85
+msgid "Thứ tự trong phần"
+msgstr "Order in section"
+
+#: .\quizapp\forms.py:58
+msgid "Ngữ liệu Đọc hiểu (chỉ dành cho TSA)"
+msgstr "Reading Comprehension Passage (for TSA only)"
+
+#: .\quizapp\forms.py:62
+msgid "Nhập mã bài thi tại đây..."
+msgstr "Enter exam code here..."
+
+#: .\quizapp\forms.py:66
+msgid "Tiêu đề phần, ví dụ: Trắc nghiệm"
+msgstr "Section title, e.g., Multiple Choice"
+
+#: .\quizapp\models.py:18
+#: .\quizapp\templates\dashboard\exam_result_history.html:27
+msgid "Học sinh"
+msgstr "Student"
+
+#: .\quizapp\models.py:19
+msgid "Giáo viên"
+msgstr "Teacher"
+
+#: .\quizapp\models.py:22
+msgid "last name"
+msgstr "last name"
+
+#: .\quizapp\models.py:23
+msgid "email address"
+msgstr "email address"
+
+#: .\quizapp\models.py:35
+msgid "Toán"
+msgstr "Math"
+
+#: .\quizapp\models.py:36
+msgid "Vật lý"
+msgstr "Physics"
+
+#: .\quizapp\models.py:37
+msgid "Hóa học"
+msgstr "Chemistry"
+
+#: .\quizapp\models.py:38
+msgid "Sinh học"
+msgstr "Biology"
+
+#: .\quizapp\models.py:39 .\quizapp\templates\base.html:85
+msgid "Lịch sử"
+msgstr "History"
+
+#: .\quizapp\models.py:40
+msgid "Địa lí"
+msgstr "Geography"
+
+#: .\quizapp\models.py:41
+msgid "Giáo dục công dân"
+msgstr "Civic Education"
+
+#: .\quizapp\models.py:42
+msgid "Tiếng Anh"
+msgstr "English"
+
+#: .\quizapp\models.py:43
+msgid "Đánh giá tư duy (TSA)"
+msgstr "Thinking Skills Assessment (TSA)"
+
+#: .\quizapp\models.py:44
+msgid "Môn khác"
+msgstr "Other subject"
+
+#: .\quizapp\models.py:47
+msgid "Công khai"
+msgstr "Public"
+
+#: .\quizapp\models.py:48
+msgid "Riêng tư (yêu cầu mã)"
+msgstr "Private (requires code)"
+
+#: .\quizapp\models.py:50
+msgid "Tiêu đề kỳ thi"
+msgstr "Exam title"
+
+#: .\quizapp\models.py:53
+msgid "Môn học (cho cấu trúc chuẩn)"
+msgstr "Subject (for standard structure)"
+
+#: .\quizapp\models.py:55
+msgid "Cấu trúc tùy chỉnh"
+msgstr "Custom structure"
+
+#: .\quizapp\models.py:56 .\quizapp\templates\student\exam_list.html:101
+msgid "Mã bài thi"
+msgstr "Exam code"
+
+#: .\quizapp\models.py:67
+msgid "Nội dung Ngữ liệu"
+msgstr "Passage Content"
+
+#: .\quizapp\models.py:68
+msgid "Thứ tự Ngữ liệu (1 hoặc 2)"
+msgstr "Passage Order (1 or 2)"
+
+#: .\quizapp\models.py:76
+msgid "Trắc nghiệm - Chọn 1"
+msgstr "Multiple Choice - Single Answer"
+
+#: .\quizapp\models.py:77
+msgid "Trắc nghiệm - Chọn nhiều"
+msgstr "Multiple Choice - Multiple Answers"
+
+#: .\quizapp\models.py:78
+msgid "Đúng / Sai"
+msgstr "True / False"
+
+#: .\quizapp\models.py:79
+msgid "Điền vào chỗ trống"
+msgstr "Fill in the Blank"
+
+#: .\quizapp\models.py:80
+msgid "Ghép đôi"
+msgstr "Matching"
+
+#: .\quizapp\models.py:86
+msgid "Ngữ liệu Đọc hiểu (nếu có)"
+msgstr "Reading Comprehension Passage (if any)"
+
+#: .\quizapp\models.py:92
+msgid "Tiêu đề phần"
+msgstr "Section title"
+
+#: .\quizapp\models.py:94
+msgid "Số lượng câu"
+msgstr "Number of questions"
+
+#: .\quizapp\models.py:95
+msgid "Điểm mỗi câu"
+msgstr "Points per question"
+
+#: .\quizapp\models.py:96
+msgid "Thứ tự phần"
+msgstr "Section order"
+
+#: .\quizapp\models.py:102
+msgid "Nội dung lựa chọn / Đáp án"
+msgstr "Choice content / Answer"
+
+#: .\quizapp\models.py:103
+msgid "Là đáp án đúng?"
+msgstr "Is correct answer?"
+
+#: .\quizapp\models.py:108
+msgid "Vế ghép (Prompt)"
+msgstr "Prompt"
+
+#: .\quizapp\models.py:109
+msgid "Vế trả lời (Answer)"
+msgstr "Answer"
+
+#: .\quizapp\models.py:115
+#: .\quizapp\templates\dashboard\exam_result_history.html:30
+#: .\quizapp\templates\dashboard\student_submission_detail.html:17
+#: .\quizapp\templates\student\result_history.html:24
+msgid "Điểm số"
+msgstr "Score"
+
+#: .\quizapp\models.py:116
+msgid "Tổng số câu"
+msgstr "Total questions"
+
+#: .\quizapp\models.py:117
+msgid "Bài làm của học sinh"
+msgstr "Student's submission"
+
+#: .\quizapp\templates\account\info.html:3
+#: .\quizapp\templates\account\info.html:6 .\quizapp\templates\base.html:90
+#: .\quizapp\views.py:485
+msgid "Thông tin tài khoản"
+msgstr "Account Information"
+
+#: .\quizapp\templates\account\info.html:22
+msgid "Cập nhật thông tin"
+msgstr "Update Information"
+
+#: .\quizapp\templates\base.html:9 .\quizapp\templates\base.html:14
+#: .\quizapp\templates\student\exam_take.html:6
+msgid "Luyện Thi Pro"
+msgstr "Luyen Thi Pro"
+
+#: .\quizapp\templates\base.html:10
+msgid ""
+"Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh, "
+"theo dõi tiến độ học tập hiệu quả."
+msgstr ""
+"An intelligent exam preparation platform, create exams with standard and "
+"custom structures, track learning progress effectively."
+
+#: .\quizapp\templates\base.html:11
+msgid ""
+"luyện thi, trắc nghiệm, azota, django, online test, đánh giá tư duy, tsa, "
+"thpt quốc gia"
+msgstr ""
+"exam prep, multiple choice, azota, django, online test, thinking skills "
+"assessment, tsa, national high school exam"
+
+#: .\quizapp\templates\base.html:15
+msgid ""
+"Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh."
+msgstr ""
+"An intelligent exam preparation platform, create exams with standard and "
+"custom structures."
+
+#: .\quizapp\templates\base.html:76
+msgid "LuyệnThi"
+msgstr "LuyenThi"
+
+#: .\quizapp\templates\base.html:82
+msgid "Bảng điều khiển"
+msgstr "Dashboard"
+
+#: .\quizapp\templates\base.html:84
+#: .\quizapp\templates\student\exam_list.html:4
+msgid "Danh sách bài thi"
+msgstr "Exam List"
+
+#: .\quizapp\templates\base.html:88
+msgid "Chào"
+msgstr "Hello"
+
+#: .\quizapp\templates\base.html:93
+msgid "Đăng xuất"
+msgstr "Logout"
+
+#: .\quizapp\templates\base.html:98 .\quizapp\templates\home.html:44
+#: .\quizapp\templates\registration\login.html:3
+#: .\quizapp\templates\registration\login.html:6
+#: .\quizapp\templates\registration\login.html:20
+msgid "Đăng nhập"
+msgstr "Login"
+
+#: .\quizapp\templates\base.html:99
+msgid "Đăng ký"
+msgstr "Register"
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:3
+msgid "Xác nhận xóa"
+msgstr "Confirm Deletion"
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:6
+msgid "Bạn có chắc chắn không?"
+msgstr "Are you sure?"
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:8
+#, python-format
+msgid "Bạn đang chuẩn bị xóa bài thi: <strong>\"%(object.title)s\"</strong>."
+msgstr "You are about to delete the exam: <strong>\"%(object.title)s\"</strong>."
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:11
+msgid "Hành động này không thể hoàn tác."
+msgstr "This action cannot be undone."
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:16
+#: .\quizapp\templates\dashboard\exam_form_custom.html:43
+#: .\quizapp\templates\dashboard\passage_form.html:21
+#: .\quizapp\templates\dashboard\question_form.html:59
+msgid "Hủy bỏ"
+msgstr "Cancel"
+
+#: .\quizapp\templates\dashboard\exam_confirm_delete.html:17
+msgid "Vâng, Xóa!"
+msgstr "Yes, Delete!"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:4
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:67
+msgid "Quản lý"
+msgstr "Manage"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:28
+msgid "Quản lý nội dung"
+msgstr "Manage Content"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:30
+msgid "Môn học"
+msgstr "Subject"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:30
+msgid "Thời gian"
+msgstr "Duration"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:30
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:64
+#: .\quizapp\templates\student\exam_list.html:126
+msgid "phút"
+msgstr "minutes"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:34
+msgid "Lịch sử nộp bài"
+msgstr "Submission History"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:35
+msgid "Sửa thông tin"
+msgstr "Edit Info"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:41
+msgid "Quản lý Ngữ liệu Đọc hiểu"
+msgstr "Manage Reading Comprehension Passages"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:45
+msgid "Sửa nội dung"
+msgstr "Edit Content"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:59
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:65
+#: .\quizapp\templates\dashboard\student_submission_detail.html:24
+#: .\quizapp\templates\student\exam_result.html:28
+#: .\quizapp\templates\student\exam_take.html:39
+#: .\quizapp\templates\student\exam_take_sectional.html:35
+msgid "Câu"
+msgstr "Question"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:60
+msgid "Trống"
+msgstr "Empty"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:61
+msgid "Tạo câu hỏi"
+msgstr "Create Question"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:67
+msgid "Chỉnh sửa"
+msgstr "Edit"
+
+#: .\quizapp\templates\dashboard\exam_detail_teacher.html:76
+msgid "Quay lại Bảng điều khiển"
+msgstr "Back to Dashboard"
+
+#: .\quizapp\templates\dashboard\exam_form_custom.html:32
+msgid "Xây dựng các phần của đề thi"
+msgstr "Build exam sections"
+
+#: .\quizapp\templates\dashboard\exam_form_custom.html:39
+msgid "Thêm phần thi"
+msgstr "Add section"
+
+#: .\quizapp\templates\dashboard\exam_form_custom.html:44
+msgid "Lưu bài thi"
+msgstr "Save Exam"
+
+#: .\quizapp\templates\dashboard\exam_form_custom.html:51
+msgid "Xóa phần này"
+msgstr "Delete this section"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:19
+msgid "Quay lại quản lý câu hỏi"
+msgstr "Back to question management"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:29
+msgid "Ngày nộp"
+msgstr "Submission Date"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:31
+#: .\quizapp\templates\student\result_history.html:25
+msgid "Hành động"
+msgstr "Action"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:41
+#: .\quizapp\templates\student\result_history.html:34
+msgid "Xem chi tiết"
+msgstr "View Details"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:48
+#: .\quizapp\templates\student\result_history.html:41
+msgid "Trang trước"
+msgstr "Previous page"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:49
+#: .\quizapp\templates\student\result_history.html:42
+#, python-format
+msgid "Trang %(page_obj.number)s của %(page_obj.paginator.num_pages)s."
+msgstr "Page %(page_obj.number)s of %(page_obj.paginator.num_pages)s."
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:50
+#: .\quizapp\templates\student\result_history.html:43
+msgid "Trang sau"
+msgstr "Next page"
+
+#: .\quizapp\templates\dashboard\exam_result_history.html:54
+msgid "Chưa có học sinh nào nộp bài thi này."
+msgstr "No students have submitted this exam yet."
+
+#: .\quizapp\templates\dashboard\passage_form.html:3
+#: .\quizapp\templates\dashboard\passage_form.html:6
+msgid "Chỉnh sửa Ngữ liệu"
+msgstr "Edit Passage"
+
+#: .\quizapp\templates\dashboard\passage_form.html:8
+#: .\quizapp\templates\dashboard\question_form.html:16
+#: .\quizapp\templates\dashboard\student_submission_detail.html:16
+#: .\quizapp\templates\student\result_history.html:22
+msgid "Bài thi"
+msgstr "Exam"
+
+#: .\quizapp\templates\dashboard\passage_form.html:22
+msgid "Lưu Ngữ liệu"
+msgstr "Save Passage"
+
+#: .\quizapp\templates\dashboard\question_form.html:25
+msgid "Các lựa chọn / Đáp án"
+msgstr "Choices / Answers"
+
+#: .\quizapp\templates\dashboard\question_form.html:32
+#: .\quizapp\templates\dashboard\question_form.html:67
+msgid "Đúng?"
+msgstr "Correct?"
+
+#: .\quizapp\templates\dashboard\question_form.html:34
+#: .\quizapp\templates\dashboard\question_form.html:51
+msgid "Đánh dấu để xóa khi lưu"
+msgstr "Mark to delete on save"
+
+#: .\quizapp\templates\dashboard\question_form.html:34
+#: .\quizapp\templates\dashboard\question_form.html:51
+msgid "Xóa?"
+msgstr "Delete?"
+
+#: .\quizapp\templates\dashboard\question_form.html:39
+msgid "Thêm lựa chọn"
+msgstr "Add choice"
+
+#: .\quizapp\templates\dashboard\question_form.html:42
+msgid "Các cặp để ghép"
+msgstr "Matching pairs"
+
+#: .\quizapp\templates\dashboard\question_form.html:56
+msgid "Thêm cặp"
+msgstr "Add pair"
+
+#: .\quizapp\templates\dashboard\question_form.html:60
+msgid "Lưu câu hỏi"
+msgstr "Save Question"
+
+#: .\quizapp\templates\dashboard\student_submission_detail.html:16
+msgid "Nộp lúc"
+msgstr "Submitted at"
+
+#: .\quizapp\templates\dashboard\student_submission_detail.html:19
+msgid "Quay lại Lịch sử"
+msgstr "Back to History"
+
+#: .\quizapp\templates\dashboard\student_submission_detail.html:22
+#: .\quizapp\templates\student\exam_result.html:26
+msgid "Đáp án chi tiết"
+msgstr "Detailed Answers"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:4
+msgid "Bảng điều khiển Giáo viên"
+msgstr "Teacher Dashboard"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:55
+msgid "Các bài thi của bạn"
+msgstr "Your Exams"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:56
+#: .\quizapp\views.py:86
+msgid "Tạo bài thi mới"
+msgstr "Create New Exam"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:64
+msgid "Tùy chỉnh"
+msgstr "Custom"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:64
+msgid "Cấu trúc chuẩn"
+msgstr "Standard structure"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:68
+msgid "Sửa"
+msgstr "Edit"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:69
+msgid "Xóa"
+msgstr "Delete"
+
+#: .\quizapp\templates\dashboard\teacher_dashboard.html:73
+msgid "Bạn chưa tạo bài thi nào. Hãy bắt đầu ngay!"
+msgstr "You haven't created any exams yet. Get started now!"
+
+#: .\quizapp\templates\home.html:4
+msgid "Trang chủ"
+msgstr "Home"
+
+#: .\quizapp\templates\home.html:4
+msgid "Nền tảng Luyện thi Thông minh"
+msgstr "Intelligent Exam Prep Platform"
+
+#: .\quizapp\templates\home.html:33
+msgid "Nền tảng Luyện thi"
+msgstr "Exam Prep Platform"
+
+#: .\quizapp\templates\home.html:33
+msgid "Thông minh & Toàn diện"
+msgstr "Smart & Comprehensive"
+
+#: .\quizapp\templates\home.html:34
+msgid ""
+"Dễ dàng tạo và quản lý các bài thi theo mọi cấu trúc, giao bài cho học sinh "
+"và theo dõi kết quả một cách trực quan."
+msgstr ""
+"Easily create and manage exams with any structure, assign them to "
+"students, and track results visually."
+
+#: .\quizapp\templates\home.html:38
+msgid "Vào Bảng điều khiển"
+msgstr "Go to Dashboard"
+
+#: .\quizapp\templates\home.html:40
+msgid "Bắt đầu làm bài"
+msgstr "Start Taking an Exam"
+
+#: .\quizapp\templates\home.html:43
+msgid "Đăng ký miễn phí"
+msgstr "Sign up for free"
+
+#: .\quizapp\templates\home.html:50
+msgid "Tính năng nổi bật"
+msgstr "Key Features"
+
+#: .\quizapp\templates\home.html:51
+msgid ""
+"Khám phá các công cụ mạnh mẽ giúp việc dạy và học trở nên hiệu quả hơn bao "
+"giờ hết."
+msgstr ""
+"Discover powerful tools that make teaching and learning more effective than "
+"ever before."
+
+#: .\quizapp\templates\home.html:54
+msgid "Đa dạng Đề thi"
+msgstr "Diverse Exams"
+
+#: .\quizapp\templates\home.html:55
+msgid ""
+"Hỗ trợ đầy đủ cấu trúc đề thi chuẩn (THPT, TSA...) và cho phép giáo viên tự "
+"do tạo đề thi tùy chỉnh với nhiều dạng câu hỏi phong phú."
+msgstr ""
+"Full support for standard exam structures (High School Graduation, TSA...) "
+"and allows teachers to freely create custom exams with a rich variety of "
+"question types."
+
+#: .\quizapp\templates\home.html:58
+msgid "Giao diện Hiện đại"
+msgstr "Modern Interface"
+
+#: .\quizapp\templates\home.html:59
+msgid ""
+"Thiết kế trực quan, dễ sử dụng cho cả giáo viên và học sinh. Chế độ tối "
+"(Dark Mode) giúp bảo vệ mắt khi sử dụng vào ban đêm."
+msgstr ""
+"Intuitive design, easy to use for both teachers and students. Dark Mode "
+"helps protect your eyes during night use."
+
+#: .\quizapp\templates\home.html:62
+msgid "Công cụ Mạnh mẽ"
+msgstr "Powerful Tools"
+
+#: .\quizapp\templates\home.html:63
+msgid ""
+"Tích hợp sẵn trình hiển thị công thức toán học LaTeX, bộ hẹn giờ làm bài "
+"theo từng phần, và hệ thống chấm điểm linh hoạt."
+msgstr ""
+"Built-in LaTeX math formula rendering, a sectional timer for exams, and a "
+"flexible scoring system."
+
+#: .\quizapp\templates\home.html:71
+msgid "Dành cho Giáo viên"
+msgstr "For Teachers"
+
+#: .\quizapp\templates\home.html:73
+msgid "Tạo đề thi nhanh chóng từ các cấu trúc có sẵn hoặc tùy chỉnh toàn diện."
+msgstr "Quickly create exams from pre-built templates or with full customization."
+
+#: .\quizapp\templates\home.html:74
+msgid "Quản lý câu hỏi, ngữ liệu và các phần thi một cách trực quan."
+msgstr "Manage questions, passages, and exam sections intuitively."
+
+#: .\quizapp\templates\home.html:75
+msgid "Giao bài và theo dõi tiến độ của học sinh một cách dễ dàng."
+msgstr "Easily assign exams and track student progress."
+
+#: .\quizapp\templates\home.html:76
+msgid "Tiết kiệm thời gian chấm bài với hệ thống tự động hóa thông minh."
+msgstr "Save time on grading with a smart, automated system."
+
+#: .\quizapp\templates\home.html:80
+msgid "Dành cho Học sinh"
+msgstr "For Students"
+
+#: .\quizapp\templates\home.html:82
+msgid "Luyện tập với các đề thi có cấu trúc và thời gian giống như thi thật."
+msgstr "Practice with exams structured and timed just like the real thing."
+
+#: .\quizapp\templates\home.html:83
+msgid ""
+"Giao diện làm bài tập trung, không bị phân tâm, hỗ trợ công thức phức tạp."
+msgstr ""
+"A focused, distraction-free test-taking interface that supports complex "
+"formulas."
+
+#: .\quizapp\templates\home.html:84
+msgid "Nhận kết quả và điểm số ngay sau khi nộp bài."
+msgstr "Get your results and score immediately after submission."
+
+#: .\quizapp\templates\home.html:85
+msgid "Theo dõi lịch sử làm bài để đánh giá sự tiến bộ của bản thân."
+msgstr "Track your test history to evaluate your own progress."
+
+#: .\quizapp\templates\home.html:92
+msgid "Sẵn sàng để bắt đầu?"
+msgstr "Ready to get started?"
+
+#: .\quizapp\templates\home.html:93
+msgid ""
+"Tạo tài khoản ngay hôm nay và trải nghiệm một phương pháp dạy và học hoàn "
+"toàn mới."
+msgstr ""
+"Create an account today and experience a whole new way of teaching and "
+"learning."
+
+#: .\quizapp\templates\home.html:94
+msgid "Tham gia ngay"
+msgstr "Join Now"
+
+#: .\quizapp\templates\registration\login.html:14
+#: .\quizapp\templates\registration\register.html:23
+msgid "Mật khẩu"
+msgstr "Password"
+
+#: .\quizapp\templates\registration\login.html:18
+msgid "Email hoặc mật khẩu không chính xác."
+msgstr "Incorrect email or password."
+
+#: .\quizapp\templates\registration\register.html:3
+msgid "Đăng ký tài khoản"
+msgstr "Register Account"
+
+#: .\quizapp\templates\registration\register.html:11
+msgid "Tạo tài khoản mới"
+msgstr "Create a new account"
+
+#: .\quizapp\templates\registration\register.html:16
+msgid "Email (dùng để đăng nhập)"
+msgstr "Email (used for login)"
+
+#: .\quizapp\templates\registration\register.html:28
+msgid "Xác nhận mật khẩu"
+msgstr "Confirm password"
+
+#: .\quizapp\templates\registration\register.html:29
+msgid "Tạo tài khoản"
+msgstr "Create Account"
+
+#: .\quizapp\templates\student\exam_list.html:5
+msgid ""
+"Chọn một bài thi từ danh sách hoặc tham gia bằng mã để bắt đầu luyện tập."
+msgstr "Choose an exam from the list or join with a code to start practicing."
+
+#: .\quizapp\templates\student\exam_list.html:97
+msgid "Tham gia bài thi bằng mã"
+msgstr "Join an exam with a code"
+
+#: .\quizapp\templates\student\exam_list.html:104
+msgid "Tham gia"
+msgstr "Join"
+
+#: .\quizapp\templates\student\exam_list.html:109
+msgid "Hoặc chọn một bài thi có sẵn"
+msgstr "Or select an available exam"
+
+#: .\quizapp\templates\student\exam_list.html:117
+msgid "Một bài kiểm tra kiến thức tổng hợp."
+msgstr "A general knowledge test."
+
+#: .\quizapp\templates\student\exam_list.html:122
+msgid "Đề tùy chỉnh"
+msgstr "Custom Exam"
+
+#: .\quizapp\templates\student\exam_list.html:128
+msgid "Vào thi"
+msgstr "Start Exam"
+
+#: .\quizapp\templates\student\exam_list.html:133
+msgid "Hiện tại chưa có bài thi nào được tạo."
+msgstr "There are currently no exams created."
+
+#: .\quizapp\templates\student\exam_list.html:134
+msgid "Vui lòng quay lại sau!"
+msgstr "Please check back later!"
+
+#: .\quizapp\templates\student\exam_result.html:3
+#: .\quizapp\templates\student\exam_result.html:16
+msgid "Kết quả bài thi"
+msgstr "Exam Result"
+
+#: .\quizapp\templates\student\exam_result.html:17
+msgid "Bạn đã hoàn thành bài thi vào lúc"
+msgstr "You completed the exam at"
+
+#: .\quizapp\templates\student\exam_result.html:18
+msgid "Điểm số của bạn là"
+msgstr "Your score is"
+
+#: .\quizapp\templates\student\exam_result.html:21
+msgid "Làm bài khác"
+msgstr "Take another exam"
+
+#: .\quizapp\templates\student\exam_result.html:22
+#: .\quizapp\templates\student\exam_result.html:63
+msgid "Xem đáp án"
+msgstr "View Answers"
+
+#: .\quizapp\templates\student\exam_result.html:60
+msgid "Ẩn đáp án"
+msgstr "Hide Answers"
+
+#: .\quizapp\templates\student\exam_take.html:4
+msgid "Làm bài"
+msgstr "Take Exam"
+
+#: .\quizapp\templates\student\exam_take.html:5
+#: .\quizapp\templates\student\exam_take.html:7
+msgid "Làm bài thi ngay trên Luyện Thi Pro!"
+msgstr "Take the exam right on Luyen Thi Pro!"
+
+#: .\quizapp\templates\student\exam_take.html:30
+msgid "Hãy đọc kỹ và chọn đáp án chính xác nhất."
+msgstr "Read carefully and choose the most accurate answer."
+
+#: .\quizapp\templates\student\exam_take.html:52
+msgid "Đúng"
+msgstr "True"
+
+#: .\quizapp\templates\student\exam_take.html:53
+msgid "Sai"
+msgstr "False"
+
+#: .\quizapp\templates\student\exam_take.html:65
+msgid "Chọn đáp án"
+msgstr "Select an answer"
+
+#: .\quizapp\templates\student\exam_take.html:94
+msgid "Nộp bài"
+msgstr "Submit"
+
+#: .\quizapp\templates\student\exam_take.html:103
+#: .\quizapp\templates\student\exam_take_sectional.html:60
+msgid "Hết giờ!"
+msgstr "Time's up!"
+
+#: .\quizapp\templates\student\exam_take_sectional.html:3
+#: .\quizapp\templates\student\exam_take_sectional.html:17
+msgid "Phần"
+msgstr "Section"
+
+#: .\quizapp\templates\student\exam_take_sectional.html:47
+msgid "Nộp & Bắt đầu phần tiếp theo"
+msgstr "Submit & Start Next Section"
+
+#: .\quizapp\templates\student\exam_take_sectional.html:49
+msgid "Hoàn thành & Nộp bài"
+msgstr "Finish & Submit Exam"
+
+#: .\quizapp\templates\student\result_history.html:3
+#: .\quizapp\templates\student\result_history.html:16 .\quizapp\views.py:470
+msgid "Lịch sử làm bài"
+msgstr "Exam History"
+
+#: .\quizapp\templates\student\result_history.html:23
+msgid "Ngày làm"
+msgstr "Date Taken"
+
+#: .\quizapp\templates\student\result_history.html:47
+msgid "Bạn chưa hoàn thành bài thi nào. Hãy bắt đầu"
+msgstr "You haven't completed any exams. Start"
+
+#: .\quizapp\templates\student\result_history.html:47
+msgid "làm bài ngay"
+msgstr "taking one now"
+
+#: .\quizapp\views.py:119
+#, python-brace-format
+msgid "Chỉnh sửa: {}"
+msgstr "Edit: {}"
+
+#: .\quizapp\views.py:158
+msgid "Bạn không có quyền truy cập trang này."
+msgstr "You do not have permission to access this page."
+
+#: .\quizapp\views.py:210
+msgid "Bạn không có quyền truy cập."
+msgstr "You do not have permission."
+
+#: .\quizapp\views.py:214
+msgid "Chỉnh sửa câu hỏi"
+msgstr "Edit Question"
+
+#: .\quizapp\views.py:217
+msgid "Tạo câu hỏi mới"
+msgstr "Create New Question"
+
+#: .\quizapp\views.py:281
+#, python-brace-format
+msgid "Không tìm thấy bài thi nào với mã '{}'. Vui lòng kiểm tra lại."
+msgstr "No exam found with code '{}'. Please check again."
+
+#: .\quizapp\views.py:401
+msgid "Phần thi không hợp lệ."
+msgstr "Invalid exam section."
+
+#: .\quizapp\views.py:489
+msgid "Thông tin tài khoản đã được cập nhật thành công!"
+msgstr "Account information updated successfully!"
+
+#: .\quizapp\views.py:510
+#, python-brace-format
+msgid "Lịch sử nộp bài: {}"
+msgstr "Submission History: {}"
+
+#: .\quizapp\views.py:532
+#, python-brace-format
+msgid "Bài làm của {}"
+msgstr "Submission by {}"
+
+#: .\quizproject\settings.py:147
+msgid "Tiếng Việt"
+msgstr "Vietnamese"
+
+#: .\quizproject\settings.py:148
+msgid "English"
+msgstr "English"

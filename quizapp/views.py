@@ -7,10 +7,25 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from django.utils.translation import gettext as _
+# from django.utils.translation import activate, get_language, LANGUAGE_SESSION_KEY # SỬA LỖI: Thêm import này
+from django.conf import settings
 from .models import Exam, Question, Result, ReadingPassage, User
-from .forms import CustomUserCreationForm, ExamForm, QuestionForm, ChoiceFormSet, MatchPairFormSet, ExamSectionFormSet, ReadingPassageForm, ExamCodeForm, UserInfoUpdateForm
-
+from .forms import (
+    CustomUserCreationForm, ExamForm, QuestionForm, ChoiceFormSet, 
+    MatchPairFormSet, ExamSectionFormSet, ReadingPassageForm, ExamCodeForm,
+    UserInfoUpdateForm
+)
 import random
+
+# --- VIEW CHUYỂN ĐỔI NGÔN NGỮ ---
+#def set_language(request):
+#    lang_code = request.POST.get('language')
+#    if lang_code and any(lang_code == lang[0] for lang in settings.LANGUAGES):
+#        activate(lang_code)
+        # SỬA LỖI: Dùng hằng số đã import thay vì settings.LANGUAGE_SESSION_KEY
+#        request.session[LANGUAGE_SESSION_KEY] = lang_code
+#    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 # --- VIEWS XÁC THỰC VÀ TRANG CHỦ ---
 class RegisterView(CreateView):
@@ -28,7 +43,7 @@ def home_view(request):
 
 # --- MIXINS VÀ HÀM KIỂM TRA QUYỀN ---
 def is_teacher(user):
-    return user.is_authenticated and user.role == 'TEACHER'
+    return user.is_authenticated and user.role == User.Role.TEACHER
 
 class TeacherRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self): return is_teacher(self.request.user)
@@ -73,7 +88,7 @@ class ExamCreateView(TeacherRequiredMixin, CreateView):
             data['section_formset'] = ExamSectionFormSet(self.request.POST, prefix='sections')
         else:
             data['section_formset'] = ExamSectionFormSet(prefix='sections')
-        data['page_title'] = 'Tạo bài thi mới'
+        data['page_title'] = _('Tạo bài thi mới')
         return data
 
     def form_valid(self, form):
@@ -106,7 +121,7 @@ class ExamUpdateView(ExamOwnerRequiredMixin, UpdateView):
             data['section_formset'] = ExamSectionFormSet(self.request.POST, instance=self.object, prefix='sections')
         else:
             data['section_formset'] = ExamSectionFormSet(instance=self.object, prefix='sections')
-        data['page_title'] = f'Chỉnh sửa: {self.object.title}'
+        data['page_title'] = _('Chỉnh sửa: {}').format(self.object.title)
         return data
 
     def form_valid(self, form):
@@ -145,7 +160,7 @@ class ReadingPassageUpdateView(TeacherRequiredMixin, UpdateView):
 def exam_detail_teacher(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
     if exam.owner != request.user:
-        return HttpResponseForbidden("Bạn không có quyền truy cập trang này.")
+        return HttpResponseForbidden(_("Bạn không có quyền truy cập trang này."))
 
     structured_exam = {}
     total_question_counter = 1
@@ -195,22 +210,16 @@ def exam_detail_teacher(request, pk):
 @user_passes_test(is_teacher)
 @transaction.atomic
 def question_create_update(request, exam_pk, question_pk=None):
-    """
-    View này đã được viết lại hoàn toàn để xử lý việc tạo/cập nhật câu hỏi
-    và tất cả các loại lựa chọn/formset một cách chính xác.
-    """
     exam = get_object_or_404(Exam, pk=exam_pk)
     if exam.owner != request.user:
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
+        return HttpResponseForbidden(_("Bạn không có quyền truy cập."))
 
     if question_pk:
         question = get_object_or_404(Question, pk=question_pk)
-        page_title = "Chỉnh sửa câu hỏi"
+        page_title = _("Chỉnh sửa câu hỏi")
     else:
         question = Question(exam=exam)
-        page_title = "Tạo câu hỏi mới"
-        
-        # Nhận giá trị ban đầu từ URL để điền sẵn vào form
+        page_title = _("Tạo câu hỏi mới")
         initial_type = request.GET.get('type')
         initial_order = request.GET.get('order')
         if initial_type in Question.QuestionType.values:
@@ -218,45 +227,31 @@ def question_create_update(request, exam_pk, question_pk=None):
         if initial_order and initial_order.isdigit():
             question.order = int(initial_order)
 
-    # Giới hạn queryset cho trường passage trong form
     form = QuestionForm(instance=question)
     form.fields['passage'].queryset = ReadingPassage.objects.filter(exam=exam)
 
     if request.method == 'POST':
         form = QuestionForm(request.POST, instance=question)
         form.fields['passage'].queryset = ReadingPassage.objects.filter(exam=exam)
-        
-        # Khởi tạo cả hai loại formset với dữ liệu POST và prefix riêng
         choice_formset = ChoiceFormSet(request.POST, instance=question, prefix='choices')
         match_formset = MatchPairFormSet(request.POST, instance=question, prefix='matches')
-
-        # Xác định formset nào cần được xác thực dựa trên loại câu hỏi được gửi lên
         q_type = form.data.get('question_type')
         formset_to_validate = None
         if q_type in [Question.QuestionType.SINGLE, Question.QuestionType.MULTIPLE, Question.QuestionType.TRUE_FALSE, Question.QuestionType.FILL_IN_BLANK]:
             formset_to_validate = choice_formset
         elif q_type == Question.QuestionType.MATCHING:
             formset_to_validate = match_formset
-
         if form.is_valid() and (formset_to_validate is None or formset_to_validate.is_valid()):
             saved_question = form.save()
             if formset_to_validate:
                 formset_to_validate.instance = saved_question
                 formset_to_validate.save()
             return redirect('exam_detail_teacher', pk=exam.pk)
-            
-    else: # GET request
-        # Luôn khởi tạo cả hai formset để gửi đến template
+    else:
         choice_formset = ChoiceFormSet(instance=question, prefix='choices')
         match_formset = MatchPairFormSet(instance=question, prefix='matches')
 
-    context = {
-        'form': form,
-        'choice_formset': choice_formset,
-        'match_formset': match_formset,
-        'exam': exam,
-        'page_title': page_title,
-    }
+    context = {'form': form, 'choice_formset': choice_formset, 'match_formset': match_formset, 'exam': exam, 'page_title': page_title}
     return render(request, 'dashboard/question_form.html', context)
 
 class QuestionDeleteView(QuestionOwnerRequiredMixin, DeleteView):
@@ -271,11 +266,8 @@ class StudentExamListView(LoginRequiredMixin, ListView):
     template_name = 'student/exam_list.html'
     context_object_name = 'exams'
     login_url = 'login'
-
     def get_queryset(self):
-        # CHỈ LẤY CÁC BÀI THI CÔNG KHAI
         return Exam.objects.filter(visibility=Exam.Visibility.PUBLIC).order_by('-created_at')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['code_form'] = ExamCodeForm()
@@ -291,7 +283,7 @@ def join_exam_by_code(request):
                 exam = Exam.objects.get(code=code)
                 return redirect('start_exam', pk=exam.pk)
             except Exam.DoesNotExist:
-                messages.error(request, f"Không tìm thấy bài thi nào với mã '{code}'. Vui lòng kiểm tra lại.")
+                messages.error(request, _("Không tìm thấy bài thi nào với mã '{}'. Vui lòng kiểm tra lại.").format(code))
     return redirect('student_exam_list')
 
 @login_required
@@ -305,11 +297,11 @@ def start_exam(request, pk):
 @login_required(login_url='login')
 def student_exam_take(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
-    questions = exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('order')
-
     if request.method == 'POST':
         final_score = 0.0
-        student_submission = {} # Dictionary để lưu bài làm của học sinh
+        student_submission = {}
+        # Lấy tất cả câu hỏi một lần để xử lý
+        questions = exam.questions.prefetch_related('choices', 'match_pairs').all()
 
         # Tạo một bản đồ điểm cho các bài thi tùy chỉnh để tra cứu nhanh hơn
         points_map = {}
@@ -386,26 +378,16 @@ def student_exam_take(request, pk):
                 if all_pairs_correct:
                     final_score += points_map.get(question.question_type, 1.0) if exam.is_custom else 1.0
 
-        # Lưu bài làm vào session trước khi chuyển hướng
-        request.session['last_exam_submission'] = student_submission
-        
-        result = Result.objects.create(
-            student=request.user, 
-            exam=exam, 
-            score=final_score, 
-            total=len(questions),
-            submission=student_submission # Thêm dòng này
-        )
+        result = Result.objects.create(student=request.user, exam=exam, score=final_score, total=exam.questions.count(), submission=student_submission)
         return redirect('student_exam_result', pk=result.pk)
     
-    # Xử lý cho GET request
-    for q in questions:
-        if q.question_type == 'MATCHING':
-            answers = list(p.answer for p in q.match_pairs.all())
-            random.shuffle(answers)
-            q.shuffled_answers = answers
-
-    context = {'exam': exam, 'questions': questions, 'duration_seconds': exam.duration_minutes * 60}
+    all_questions = list(exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('passage__order', 'order'))
+    passages = list(exam.passages.all().order_by('order'))
+    for passage in passages:
+        passage.related_questions = [q for q in all_questions if q.passage_id == passage.id]
+    non_passage_questions = [q for q in all_questions if q.passage_id is None]
+    
+    context = {'exam': exam, 'passages': passages, 'non_passage_questions': non_passage_questions, 'duration_seconds': exam.duration_minutes * 60}
     return render(request, 'student/exam_take.html', context)
 
 @login_required(login_url='login')
@@ -419,7 +401,7 @@ def student_exam_take_sectional(request, pk, section_order):
     try:
         current_section = sections[section_order - 1]
     except IndexError:
-        return HttpResponseForbidden("Phần thi không hợp lệ.")
+        return HttpResponseForbidden(_("Phần thi không hợp lệ."))
     
     passage = None
     if current_section.passage_order:
@@ -442,8 +424,14 @@ def student_exam_take_sectional(request, pk, section_order):
             return redirect('student_exam_take_section', pk=pk, section_order=section_order + 1)
         else:
             final_score = 0
-            # ... (logic chấm điểm cho TSA) ...
-            result = Result.objects.create(student=request.user, exam=exam, score=final_score, total=exam.questions.count())
+            all_answers_by_section = request.session.get(session_key, {})
+            for sec_key, sec_answers in all_answers_by_section.items():
+                for q_key, answer_id in sec_answers.items():
+                    q_id = q_key.replace('question', '')
+                    if Question.objects.filter(id=q_id, choices__id=answer_id, choices__is_correct=True).exists():
+                        final_score += 1.0
+            
+            result = Result.objects.create(student=request.user, exam=exam, score=final_score, total=exam.questions.count(), submission=all_answers_by_section)
             if session_key in request.session:
                 del request.session[session_key]
             
@@ -455,48 +443,21 @@ def student_exam_take_sectional(request, pk, section_order):
 @login_required(login_url='login')
 def student_exam_result(request, pk):
     result = get_object_or_404(Result, pk=pk, student=request.user)
-    
-    # CẬP NHẬT: Lấy bài làm từ đối tượng result thay vì session
     submission = result.submission or {}
+    all_questions = list(result.exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('passage__order', 'order'))
+    passages = list(result.exam.passages.all().order_by('order'))
+
+    for question in all_questions:
+        question.student_answer = submission.get(str(question.id))
+
+    for passage in passages:
+        passage.related_questions = [q for q in all_questions if q.passage_id == passage.id]
     
-    questions = result.exam.questions.prefetch_related('choices').all().order_by('order')
-    
-    for question in questions:
-        q_id_str = str(question.id)
-        question.student_answer = submission.get(q_id_str)
+    non_passage_questions = [q for q in all_questions if q.passage_id is None]
         
-    context = {
-        'result': result,
-        'questions': questions,
-    }
-        
+    context = {'result': result, 'passages': passages, 'non_passage_questions': non_passage_questions}
     return render(request, 'student/exam_result.html', context)
 
-# TẠO VIEW MỚI CHO GIÁO VIÊN XEM BÀI LÀM
-@login_required
-@user_passes_test(is_teacher)
-def teacher_result_detail(request, pk):
-    result = get_object_or_404(Result, pk=pk)
-    
-    # Kiểm tra quyền sở hữu
-    if result.exam.owner != request.user:
-        return HttpResponseForbidden("Bạn không có quyền xem bài làm này.")
-
-    submission = result.submission or {}
-    questions = result.exam.questions.prefetch_related('choices').all().order_by('order')
-    
-    for question in questions:
-        q_id_str = str(question.id)
-        question.student_answer = submission.get(q_id_str)
-
-    context = {
-        'result': result,
-        'questions': questions,
-        'page_title': f"Bài làm của {result.student.first_name or result.student.username}"
-    }
-    return render(request, 'dashboard/student_submission_detail.html', context)
-
-# BỔ SUNG VIEW MỚI CHO TRANG LỊCH SỬ
 class StudentResultHistoryView(LoginRequiredMixin, ListView):
     model = Result
     template_name = 'student/result_history.html'
@@ -509,8 +470,27 @@ class StudentResultHistoryView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = "Lịch sử làm bài"
+        context['page_title'] = _("Lịch sử làm bài")
         return context
+
+class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserInfoUpdateForm
+    template_name = 'account/info.html'
+    success_url = reverse_lazy('account_info')
+    login_url = 'login'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = _("Thông tin tài khoản")
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Thông tin tài khoản đã được cập nhật thành công!"))
+        return super().form_valid(form)
 
 class ExamResultHistoryView(TeacherRequiredMixin, ListView):
     model = Result
@@ -519,43 +499,38 @@ class ExamResultHistoryView(TeacherRequiredMixin, ListView):
     paginate_by = 20
 
     def dispatch(self, request, *args, **kwargs):
-        """
-        Ghi đè phương thức dispatch để kiểm tra quyền sở hữu bài thi
-        trước khi hiển thị danh sách kết quả.
-        """
         self.exam = get_object_or_404(Exam, pk=self.kwargs['pk'])
         if self.exam.owner != self.request.user:
             return HttpResponseForbidden("Bạn không có quyền xem lịch sử của bài thi này.")
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        # Lấy tất cả kết quả của bài thi này, sắp xếp theo điểm từ cao đến thấp
-        queryset = Result.objects.filter(exam=self.exam).order_by('-score', '-submitted_at')
-        return queryset
+        return Result.objects.filter(exam=self.exam).order_by('-score', '-submitted_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['exam'] = self.exam
-        context['page_title'] = f"Lịch sử nộp bài: {self.exam.title}"
+        context['page_title'] = _("Lịch sử nộp bài: {}").format(self.exam.title)
         return context
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_result_detail(request, pk):
+    result = get_object_or_404(Result, pk=pk)
+    if result.exam.owner != request.user:
+        return HttpResponseForbidden("Bạn không có quyền xem bài làm này.")
+
+    submission = result.submission or {}
+    all_questions = list(result.exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('passage__order', 'order'))
+    passages = list(result.exam.passages.all().order_by('order'))
+
+    for question in all_questions:
+        question.student_answer = submission.get(str(question.id))
+
+    for passage in passages:
+        passage.related_questions = [q for q in all_questions if q.passage_id == passage.id]
     
-class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
-    model = User
-    form_class = UserInfoUpdateForm
-    template_name = 'account/info.html'
-    success_url = reverse_lazy('account_info') # Tải lại trang sau khi cập nhật thành công
-    login_url = 'login'
+    non_passage_questions = [q for q in all_questions if q.passage_id is None]
 
-    def get_object(self, queryset=None):
-        # Đảm bảo người dùng chỉ có thể chỉnh sửa thông tin của chính họ
-        return self.request.user
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['page_title'] = "Thông tin tài khoản"
-        return context
-
-    def form_valid(self, form):
-        # Thêm một thông báo thành công để người dùng biết
-        messages.success(self.request, "Thông tin tài khoản đã được cập nhật thành công!")
-        return super().form_valid(form)
+    context = {'result': result, 'passages': passages, 'non_passage_questions': non_passage_questions, 'page_title': _("Bài làm của {}").format(result.student.first_name or result.student.username)}
+    return render(request, 'dashboard/student_submission_detail.html', context)

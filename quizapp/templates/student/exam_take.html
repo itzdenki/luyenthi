@@ -1,34 +1,17 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Làm bài: {{ exam.title }}{% endblock %}
-{% block description %}{{ exam.description|default:"Làm bài thi ngay trên Luyện Thi Pro!"|truncatewords:25 }}{% endblock %}
-{% block og_title %}{{ exam.title }} - Luyện Thi Pro{% endblock %}
-{% block og_description %}{{ exam.description|default:"Làm bài thi ngay trên Luyện Thi Pro!"|truncatewords:25 }}{% endblock %}
+{% block title %}{% trans "Làm bài" %}: {{ exam.title }}{% endblock %}
+{% block description %}{{ exam.description|default:_("Làm bài thi ngay trên Luyện Thi Pro!")|truncatewords:25 }}{% endblock %}
+{% block og_title %}{{ exam.title }} - {% trans "Luyện Thi Pro" %}{% endblock %}
+{% block og_description %}{{ exam.description|default:_("Làm bài thi ngay trên Luyện Thi Pro!")|truncatewords:25 }}{% endblock %}
 
 {% block content %}
 <style>
-    .exam-header {
-        background-color: var(--bg-surface);
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        border: 1px solid var(--border);
-    }
+    .exam-header { background-color: var(--bg-surface); padding: 1rem 1.5rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border: 1px solid var(--border); }
     #timer { font-size: 1.5em; font-weight: bold; color: var(--error); }
-    .question-box {
-        background-color: var(--bg-surface);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--border);
-    }
-    .question-text { 
-        margin-bottom: 1.5rem; 
-        line-height: 1.6; 
-    }
+    .question-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+    .question-text { margin-bottom: 1.5rem; line-height: 1.6; }
     .choice-item { margin-bottom: 1rem; }
     .choice-item label { margin-left: 0.5rem; }
     .fill-in-blank-input { width: 50%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
@@ -38,62 +21,77 @@
     .matching-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .matching-prompt { padding: 10px; background-color: var(--bg-primary); border-radius: 4px; }
     .matching-select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
+    .passage-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); line-height: 1.7; }
 </style>
 
 <div class="exam-header">
     <div>
         <h2>{{ exam.title }}</h2>
-        <p style="color: var(--text-secondary);">Hãy đọc kỹ và chọn đáp án chính xác nhất.</p>
+        <p style="color: var(--text-secondary);">{% trans "Hãy đọc kỹ và chọn đáp án chính xác nhất." %}</p>
     </div>
     <div id="timer">--:--</div>
 </div>
 
 <form method="post">
     {% csrf_token %}
-    {% for question in questions %}
-        <div class="question-box">
-            <h4 class="question-text">Câu {{ forloop.counter }}: {{ question.text|safe }}</h4>
-            
-            {% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
-                {% for choice in question.choices.all %}
-                <div class="choice-item">
-                    <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" {% if question.question_type == 'SINGLE' %}required{% endif %}>
-                    <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
+    
+    {% macro render_question(question, counter) %}
+        <h4 class="question-text">{% trans "Câu" %} {{ counter }}: {{ question.text|safe }}</h4>
+        {% if question.question_type == 'SINGLE' or question.question_type == 'MULTIPLE' %}
+            {% for choice in question.choices.all %}
+            <div class="choice-item">
+                <input type="{% if question.question_type == 'SINGLE' %}radio{% else %}checkbox{% endif %}" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" {% if question.question_type == 'SINGLE' %}required{% endif %}>
+                <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
+            </div>
+            {% endfor %}
+        {% elif question.question_type == 'TRUE_FALSE' %}
+            {% for choice in question.choices.all %}
+            <div class="true-false-item">
+                <span>{{ choice.text|safe }}</span>
+                <div class="true-false-options">
+                    <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Đúng" required> {% trans "Đúng" %}</label>
+                    <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Sai" required> {% trans "Sai" %}</label>
                 </div>
-                {% endfor %}
-
-            {% elif question.question_type == 'TRUE_FALSE' %}
-                {% for choice in question.choices.all %}
-                <div class="true-false-item">
-                    <span>{{ choice.text|safe }}</span>
-                    <div class="true-false-options">
-                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Đúng" required> Đúng</label>
-                        <label><input type="radio" name="question{{ question.id }}_choice{{ choice.id }}" value="Sai" required> Sai</label>
+            </div>
+            {% endfor %}
+        {% elif question.question_type == 'FILL_IN_BLANK' %}
+            <input type="text" name="question{{ question.id }}" class="fill-in-blank-input" required>
+        {% elif question.question_type == 'MATCHING' %}
+            <div class="matching-container">
+                {% for pair in question.match_pairs.all %}
+                    <div class="matching-prompt">{{ pair.prompt|safe }}</div>
+                    <div>
+                        <select name="question{{ question.id }}_prompt{{ pair.id }}" class="matching-select" required>
+                            <option value="">-- {% trans "Chọn đáp án" %} --</option>
+                            {% for answer in question.shuffled_answers %}
+                            <option value="{{ answer }}">{{ answer }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                </div>
                 {% endfor %}
+            </div>
+        {% endif %}
+    {% endmacro %}
 
-            {% elif question.question_type == 'FILL_IN_BLANK' %}
-                <input type="text" name="question{{ question.id }}" class="fill-in-blank-input" required>
+    {% for passage in passages %}
+        <div class="passage-box">
+            <h4>{{ passage.title }}</h4>
+            <p>{{ passage.content|safe|linebreaks }}</p>
+        </div>
+        {% for question in passage.related_questions %}
+            <div class="question-box">
+                {{ render_question(question, forloop.parentloop.counter|add:forloop.counter0) }}
+            </div>
+        {% endfor %}
+    {% endfor %}
 
-            {% elif question.question_type == 'MATCHING' %}
-                <div class="matching-container">
-                    {% for pair in question.match_pairs.all %}
-                        <div class="matching-prompt">{{ pair.prompt|safe }}</div>
-                        <div>
-                            <select name="question{{ question.id }}_prompt{{ pair.id }}" class="matching-select" required>
-                                <option value="">-- Chọn đáp án --</option>
-                                {% for answer in question.shuffled_answers %}
-                                <option value="{{ answer }}">{{ answer }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+    {% for question in non_passage_questions %}
+        <div class="question-box">
+            {{ render_question(question, forloop.counter) }}
         </div>
     {% endfor %}
-    <button type="submit" class="btn btn-cta" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Nộp bài</button>
+
+    <button type="submit" class="btn btn-cta" style="padding: 0.75rem 2rem; font-size: 1.1rem;">{% trans "Nộp bài" %}</button>
 </form>
 
 <script>
@@ -102,7 +100,7 @@
     const countdown = setInterval(function() {
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            timerDisplay.textContent = "Hết giờ!";
+            timerDisplay.textContent = "{% trans 'Hết giờ!' %}";
             document.querySelector('form').submit();
         } else {
             let minutes = Math.floor(timeLeft / 60);

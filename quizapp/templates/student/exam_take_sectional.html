@@ -1,33 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Phần {{ section_order }}: {{ current_section.title }}{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Phần" %} {{ section_order }}: {{ current_section.title }}{% endblock %}
 {% block content %}
 <style>
-    .exam-header {
-        background-color: var(--bg-surface);
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        border: 1px solid var(--border);
-    }
+    .exam-header { background-color: var(--bg-surface); padding: 1rem 1.5rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border: 1px solid var(--border); }
     #timer { font-size: 1.5em; font-weight: bold; color: var(--error); }
-    .question-box {
-        background-color: var(--bg-surface);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--border);
-    }
+    .question-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); }
     .choice-item { margin-bottom: 10px; }
+    .passage-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); line-height: 1.7; }
 </style>
 
 <div class="exam-header">
     <div>
         <h2>{{ exam.title }}</h2>
         <p style="color: var(--text-secondary);">
-            <strong>Phần {{ section_order }}/{{ total_sections }}:</strong> {{ current_section.title }}
+            <strong>{% trans "Phần" %} {{ section_order }}/{{ total_sections }}:</strong> {{ current_section.title }}
         </p>
     </div>
     <div id="timer">--:--</div>
@@ -35,17 +22,20 @@
 
 <form method="post">
     {% csrf_token %}
+    
+    {% if passage %}
+        <div class="passage-box">
+            <h4>{{ passage.title }}</h4>
+            <p>{{ passage.content|safe|linebreaks }}</p>
+        </div>
+    {% endif %}
+
     {% for question in questions %}
         <div class="question-box">
-            <h4>Câu {{ forloop.counter }}: {{ question.text|safe }}</h4>
-            
+            <h4>{% trans "Câu" %} {{ forloop.counter }}: {{ question.text|safe }}</h4>
             {% for choice in question.choices.all %}
             <div class="choice-item">
-                <input type="radio" 
-                       name="question{{ question.id }}" 
-                       id="choice{{ choice.id }}" 
-                       value="{{ choice.id }}"
-                       required>
+                <input type="radio" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" required>
                 <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
             </div>
             {% endfor %}
@@ -54,9 +44,9 @@
     
     <div style="text-align: right;">
         {% if section_order < total_sections %}
-            <button type="submit" class="btn btn-primary">Nộp & Bắt đầu phần tiếp theo &rarr;</button>
+            <button type="submit" class="btn btn-primary">{% trans "Nộp & Bắt đầu phần tiếp theo" %} &rarr;</button>
         {% else %}
-            <button type="submit" class="btn btn-cta">Hoàn thành & Nộp bài</button>
+            <button type="submit" class="btn btn-cta">{% trans "Hoàn thành & Nộp bài" %}</button>
         {% endif %}
     </div>
 </form>
@@ -64,11 +54,10 @@
 <script>
     const timerDisplay = document.getElementById('timer');
     let timeLeft = {{ duration_seconds }};
-
     const countdown = setInterval(function() {
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            timerDisplay.textContent = "Hết giờ!";
+            timerDisplay.textContent = "{% trans 'Hết giờ!' %}";
             document.querySelector('form').submit();
         } else {
             let minutes = Math.floor(timeLeft / 60);

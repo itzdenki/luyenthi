@@ -1,10 +1,34 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Danh sách bài thi{% endblock %}
-{% block description %}Chọn một bài thi từ danh sách để bắt đầu luyện tập và kiểm tra kiến thức của bạn.{% endblock %}
+{% block title %}{% trans "Danh sách bài thi" %}{% endblock %}
+{% block description %}{% trans "Chọn một bài thi từ danh sách hoặc tham gia bằng mã để bắt đầu luyện tập." %}{% endblock %}
 
 {% block content %}
 <style>
+    .join-code-wrapper {
+        background-color: var(--bg-surface);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+    .join-code-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    .join-code-form .form-field {
+        flex-grow: 1;
+        margin-bottom: 0;
+    }
+    .alert-error {
+        background-color: var(--error);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
     .page-header {
         margin-bottom: 2rem;
         padding-bottom: 1rem;
@@ -39,7 +63,7 @@
         color: var(--text-secondary); 
         flex-grow: 1; 
         margin-bottom: 1.5rem; 
-        min-height: 40px; /* Đảm bảo các thẻ có chiều cao mô tả tương đối bằng nhau */
+        min-height: 40px;
     }
     .exam-card-footer { 
         display: flex; 
@@ -57,34 +81,10 @@
         padding: 2rem;
         text-align: center;
         color: var(--text-secondary);
-        grid-column: 1 / -1; /* Trải dài toàn bộ chiều rộng grid */
-    }
-    .join-code-wrapper {
-        background-color: var(--bg-surface);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
-        border: 1px solid var(--border);
-    }
-    .join-code-form {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-    .join-code-form .form-field {
-        flex-grow: 1;
-        margin-bottom: 0;
-    }
-    .alert-error {
-        background-color: var(--error);
-        color: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1.5rem;
+        grid-column: 1 / -1;
     }
 </style>
 
-<!-- HIỂN THỊ THÔNG BÁO LỖI (NẾU CÓ) -->
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
@@ -93,26 +93,20 @@
     {% endfor %}
 {% endif %}
 
-<!-- KHU VỰC NHẬP MÃ BÀI THI MỚI -->
 <div class="join-code-wrapper">
-    <h3 style="margin-top: 0; margin-bottom: 1rem;">Tham gia bài thi bằng mã</h3>
+    <h3 style="margin-top: 0; margin-bottom: 1rem;">{% trans "Tham gia bài thi bằng mã" %}</h3>
     <form class="join-code-form" action="{% url 'join_exam_by_code' %}" method="post">
         {% csrf_token %}
         <div class="form-field">
-            <label for="{{ code_form.code.id_for_label }}">Mã bài thi</label>
+            <label for="{{ code_form.code.id_for_label }}">{% trans "Mã bài thi" %}</label>
             {{ code_form.code }}
         </div>
-        <button type="submit" class="btn btn-primary">Tham gia</button>
+        <button type="submit" class="btn btn-primary">{% trans "Tham gia" %}</button>
     </form>
 </div>
 
-
 <div class="page-header">
-    <h2>Hoặc chọn một bài thi có sẵn</h2>
-</div>
-
-<div class="page-header">
-    <h2>Danh sách bài thi</h2>
+    <h2>{% trans "Hoặc chọn một bài thi có sẵn" %}</h2>
 </div>
 
 <div class="exam-list-container">
@@ -120,24 +114,24 @@
         <div class="exam-card">
             <div>
                 <h3>{{ exam.title }}</h3>
-                <p>{{ exam.description|default:"Một bài kiểm tra kiến thức tổng hợp."|truncatewords:20 }}</p>
+                <p>{{ exam.description|default:_("Một bài kiểm tra kiến thức tổng hợp.")|truncatewords:20 }}</p>
             </div>
             <div class="exam-card-footer">
                 <span class="exam-card-meta">
                     {% if exam.is_custom %}
-                        Đề tùy chỉnh
+                        {% trans "Đề tùy chỉnh" %}
                     {% else %}
                         {{ exam.get_subject_display }}
                     {% endif %}
-                    | {{ exam.duration_minutes }} phút
+                    | {{ exam.duration_minutes }} {% trans "phút" %}
                 </span>
-                <a href="{% url 'start_exam' pk=exam.pk %}" class="btn btn-primary">Vào thi</a>
+                <a href="{% url 'start_exam' pk=exam.pk %}" class="btn btn-primary">{% trans "Vào thi" %}</a>
             </div>
         </div>
     {% empty %}
         <div class="no-exams-message">
-            <p>Hiện tại chưa có bài thi nào được tạo.</p>
-            <p>Vui lòng quay lại sau!</p>
+            <p>{% trans "Hiện tại chưa có bài thi nào được tạo." %}</p>
+            <p>{% trans "Vui lòng quay lại sau!" %}</p>
         </div>
     {% endfor %}
 </div>

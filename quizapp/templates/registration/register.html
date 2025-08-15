@@ -1,38 +1,34 @@
 {% extends "base.html" %}
-{% block title %}Đăng ký tài khoản{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Đăng ký tài khoản" %}{% endblock %}
 {% block content %}
 <style>
     .password-strength-meter { height: 8px; background-color: var(--border); border-radius: 4px; margin-top: 0.75rem; overflow: hidden; }
     .strength-bar { height: 100%; width: 0; border-radius: 4px; transition: width 0.3s, background-color 0.3s; }
     .strength-text { margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); text-align: right; height: 1.2em; }
 </style>
-
 <div class="form-wrapper">
-    <h2>Tạo tài khoản mới</h2>
+    <h2>{% trans "Tạo tài khoản mới" %}</h2>
     <form method="post">
         {% csrf_token %}
         {% if form.non_field_errors %}{% for error in form.non_field_errors %}<p style="color: var(--error); margin-bottom: 1rem;">{{ error }}</p>{% endfor %}{% endif %}
-
-        <div class="form-field"><label for="{{ form.first_name.id_for_label }}">Họ và Tên</label>{{ form.first_name }}{{ form.first_name.errors }}</div>
-        <div class="form-field"><label for="{{ form.email.id_for_label }}">Email (dùng để đăng nhập)</label>{{ form.email }}{{ form.email.errors }}</div>
-        <!-- THÊM TRƯỜNG NHẬP SỐ ĐIỆN THOẠI -->
-        <div class="form-field"><label for="{{ form.phone_number.id_for_label }}">Số điện thoại</label>{{ form.phone_number }}{{ form.phone_number.errors }}</div>
-        <div class="form-field"><label for="{{ form.school.id_for_label }}">Trường</label>{{ form.school }}{{ form.school.errors }}</div>
-        <div class="form-field"><label for="{{ form.school_class.id_for_label }}">Lớp</label>{{ form.school_class }}{{ form.school_class.errors }}</div>
-        <div class="form-field"><label for="{{ form.date_of_birth.id_for_label }}">Ngày Sinh</label>{{ form.date_of_birth }}{{ form.date_of_birth.errors }}</div>
-        <div class="form-field"><label for="{{ form.role.id_for_label }}">Bạn là</label>{{ form.role }}</div>
+        <div class="form-field"><label for="{{ form.first_name.id_for_label }}">{% trans "Họ và Tên" %}</label>{{ form.first_name }}{{ form.first_name.errors }}</div>
+        <div class="form-field"><label for="{{ form.email.id_for_label }}">{% trans "Email (dùng để đăng nhập)" %}</label>{{ form.email }}{{ form.email.errors }}</div>
+        <div class="form-field"><label for="{{ form.phone_number.id_for_label }}">{% trans "Số điện thoại" %}</label>{{ form.phone_number }}{{ form.phone_number.errors }}</div>
+        <div class="form-field"><label for="{{ form.school.id_for_label }}">{% trans "Trường" %}</label>{{ form.school }}{{ form.school.errors }}</div>
+        <div class="form-field"><label for="{{ form.school_class.id_for_label }}">{% trans "Lớp" %}</label>{{ form.school_class }}{{ form.school_class.errors }}</div>
+        <div class="form-field"><label for="{{ form.date_of_birth.id_for_label }}">{% trans "Ngày Sinh" %}</label>{{ form.date_of_birth }}{{ form.date_of_birth.errors }}</div>
+        <div class="form-field"><label for="{{ form.role.id_for_label }}">{% trans "Bạn là" %}</label>{{ form.role }}</div>
         <div class="form-field">
-            <label for="{{ form.password1.id_for_label }}">Mật khẩu</label>{{ form.password1 }}
+            <label for="{{ form.password1.id_for_label }}">{% trans "Mật khẩu" %}</label>{{ form.password1 }}
             <div class="password-strength-meter"><div class="strength-bar" id="strength-bar"></div></div>
             <div class="strength-text" id="strength-text"></div>
             {{ form.password1.errors }}
         </div>
-        <div class="form-field"><label for="{{ form.password2.id_for_label }}">Xác nhận mật khẩu</label>{{ form.password2 }}{{ form.password2.errors }}</div>
-
-        <button type="submit" class="btn btn-cta" style="width: 100%; margin-top: 1rem;">Tạo tài khoản</button>
+        <div class="form-field"><label for="{{ form.password2.id_for_label }}">{% trans "Xác nhận mật khẩu" %}</label>{{ form.password2 }}{{ form.password2.errors }}</div>
+        <button type="submit" class="btn btn-cta" style="width: 100%; margin-top: 1rem;">{% trans "Tạo tài khoản" %}</button>
     </form>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('id_password1');

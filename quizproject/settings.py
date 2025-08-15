@@ -45,6 +45,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # <-- đúng
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -131,9 +132,26 @@ LOGOUT_REDIRECT_URL = 'login'
 CSRF_TRUSTED_ORIGINS = [
     'https://*.devtunnels.ms',
     'https://*.itzdenki.io.vn',
+    'https://onthi123.io.vn',
 ]
 
 AUTHENTICATION_BACKENDS = [
     'quizapp.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+from django.utils.translation import gettext_lazy as _
+
+# Các ngôn ngữ website của bạn hỗ trợ
+LANGUAGES = [
+    ('vi', _('Tiếng Việt')),
+    ('en', _('English')),
+]
+
+# Thư mục chứa các file dịch thuật
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+# Ngôn ngữ mặc định
+LANGUAGE_CODE = 'vi'

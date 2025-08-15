@@ -1,121 +1,48 @@
 {% extends "base.html" %}
-{% block title %}Quản lý: {{ exam.title }}{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Quản lý" %}: {{ exam.title }}{% endblock %}
+
 {% block content %}
 <style>
-    .page-header {
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border);
-    }
+    .page-header { margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
     .exam-section { margin-bottom: 2.5rem; }
-    .exam-section h3 {
-        font-size: 1.5em;
-        color: var(--text-primary);
-        margin-bottom: 1.5rem;
-    }
-    .question-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
-    }
-    .question-slot {
-        background-color: var(--bg-surface);
-        border: 1px solid var(--border);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        text-align: center;
-        transition: all 0.2s ease-in-out;
-    }
-    .question-slot.placeholder {
-        border-style: dashed;
-        background-color: transparent;
-    }
-    .question-slot:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .question-slot a {
-        text-decoration: none;
-        color: var(--text-secondary);
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        justify-content: center;
-    }
+    .exam-section h3 { font-size: 1.5em; color: var(--text-primary); margin-bottom: 1.5rem; }
+    .question-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .question-slot { background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; text-align: center; transition: all 0.2s ease-in-out; }
+    .question-slot.placeholder { border-style: dashed; background-color: transparent; }
+    .question-slot:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .question-slot a { text-decoration: none; color: var(--text-secondary); display: flex; flex-direction: column; height: 100%; justify-content: center; }
     .slot-order { font-weight: bold; font-size: 1.1em; margin-bottom: 0.5rem; color: var(--text-primary); }
     .slot-text { font-size: 0.9em; min-height: 40px; }
     .slot-action { margin-top: 1rem; font-weight: 500; }
     .action-create { color: var(--success); }
     .action-edit { color: var(--accent); }
-    .passage-management {
-        background-color: var(--bg-surface);
-        border: 1px solid var(--border);
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-bottom: 2.5rem;
-    }
-    .passage-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border);
-    }
-    .passage-item:last-child { 
-        border-bottom: none; 
-    }
-    .exam-code-display {
-        background-color: var(--bg-surface);
-        border: 1px solid var(--border);
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-bottom: 2.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .exam-code-display .code {
-        font-family: monospace;
-        font-size: 2em;
-        font-weight: bold;
-        letter-spacing: 2px;
-        color: var(--accent);
-    }
+    .passage-management { background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2.5rem; }
+    .passage-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .passage-item:last-child { border-bottom: none; }
 </style>
 
 <div class="page-header">
     <div>
-        <h2>Quản lý nội dung: {{ exam.title }}</h2>
+        <h2>{% trans "Quản lý nội dung" %}: {{ exam.title }}</h2>
         <small style="color: var(--text-secondary);">
-            Môn học: <strong>{{ exam.get_subject_display }}</strong> | Thời gian: <strong>{{ exam.duration_minutes }} phút</strong>
+            {% trans "Môn học" %}: <strong>{{ exam.get_subject_display }}</strong> | {% trans "Thời gian" %}: <strong>{{ exam.duration_minutes }} {% trans "phút" %}</strong>
         </small>
     </div>
     <div style="display: flex; gap: 0.5rem;">
-        <!-- THÊM NÚT MỚI ĐỂ XEM LỊCH SỬ -->
-        <a href="{% url 'exam_result_history' pk=exam.pk %}" class="btn btn-primary">Lịch sử nộp bài</a>
-        <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Sửa thông tin</a>
+        <a href="{% url 'exam_result_history' pk=exam.pk %}" class="btn btn-primary">{% trans "Lịch sử nộp bài" %}</a>
+        <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Sửa thông tin" %}</a>
     </div>
 </div>
 
-<div class="exam-code-display">
-    <div>
-        <h3 style="margin: 0 0 0.5rem 0;">Mã truy cập bài thi</h3>
-        <span class="code" id="exam-code-text">{{ exam.code }}</span>
-    </div>
-    <button class="btn btn-primary" id="copy-code-btn">Sao chép mã</button>
-</div>
-<!-- KHU VỰC QUẢN LÝ NGỮ LIỆU MỚI -->
 {% if passages %}
 <div class="passage-management">
-    <h3>Quản lý Ngữ liệu Đọc hiểu</h3>
+    <h3>{% trans "Quản lý Ngữ liệu Đọc hiểu" %}</h3>
     {% for passage in passages %}
     <div class="passage-item">
         <span><strong>{{ passage.title }}:</strong> {{ passage.content|truncatewords:15 }}</span>
-        <a href="{% url 'passage_update' pk=passage.pk %}" class="btn btn-primary">Sửa nội dung</a>
+        <a href="{% url 'passage_update' pk=passage.pk %}" class="btn btn-primary">{% trans "Sửa nội dung" %}</a>
     </div>
     {% endfor %}
 </div>
@@ -129,15 +56,15 @@
             <div class="question-slot {% if slot.is_placeholder %}placeholder{% endif %}">
                 {% if slot.is_placeholder %}
                     <a href="{% url 'question_create' exam_pk=exam.pk %}?type={{ section_data.question_type_value }}&order={{ slot.order_in_type }}">
-                        <div class="slot-order">Câu {{ slot.display_order }}</div>
-                        <div class="slot-text">(Trống)</div>
-                        <div class="slot-action action-create">Tạo câu hỏi</div>
+                        <div class="slot-order">{% trans "Câu" %} {{ slot.display_order }}</div>
+                        <div class="slot-text">({% trans "Trống" %})</div>
+                        <div class="slot-action action-create">{% trans "Tạo câu hỏi" %}</div>
                     </a>
                 {% else %}
                     <a href="{% url 'question_update' exam_pk=exam.pk question_pk=slot.question.pk %}">
-                        <div class="slot-order">Câu {{ slot.display_order }}</div>
+                        <div class="slot-order">{% trans "Câu" %} {{ slot.display_order }}</div>
                         <div class="slot-text">{{ slot.question.text|truncatechars:50 }}</div>
-                        <div class="slot-action action-edit">Chỉnh sửa</div>
+                        <div class="slot-action action-edit">{% trans "Chỉnh sửa" %}</div>
                     </a>
                 {% endif %}
             </div>
@@ -146,25 +73,5 @@
 </div>
 {% endfor %}
 
-<a href="{% url 'teacher_dashboard' %}" style="margin-top: 2rem; display: inline-block; color: var(--accent);">&larr; Quay lại Bảng điều khiển</a>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const copyBtn = document.getElementById('copy-code-btn');
-    const codeText = document.getElementById('exam-code-text').textContent;
-
-    copyBtn.addEventListener('click', function() {
-        navigator.clipboard.writeText(codeText).then(function() {
-            // Thay đổi text của nút để thông báo đã sao chép thành công
-            copyBtn.textContent = 'Đã sao chép!';
-            // Quay lại text cũ sau 2 giây
-            setTimeout(function() {
-                copyBtn.textContent = 'Sao chép mã';
-            }, 2000);
-        }, function(err) {
-            console.error('Không thể sao chép mã: ', err);
-        });
-    });
-});
-</script>
+<a href="{% url 'teacher_dashboard' %}" style="margin-top: 2rem; display: inline-block; color: var(--accent);">&larr; {% trans "Quay lại Bảng điều khiển" %}</a>
 {% endblock %}

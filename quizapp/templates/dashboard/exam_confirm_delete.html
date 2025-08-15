@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Xác nhận xóa{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Xác nhận xóa" %}{% endblock %}
 {% block content %}
 <div class="form-wrapper" style="text-align: center;">
-    <h2>Bạn có chắc chắn không?</h2>
+    <h2>{% trans "Bạn có chắc chắn không?" %}</h2>
     <p style="color: var(--text-secondary); margin-top: 1rem;">
-        Bạn đang chuẩn bị xóa bài thi: <strong>"{{ object.title }}"</strong>.
+        {% blocktrans %}Bạn đang chuẩn bị xóa bài thi: <strong>"{{ object.title }}"</strong>.{% endblocktrans %}
     </p>
     <p style="color: var(--error); margin-top: 0.5rem; font-weight: 500;">
-        Hành động này không thể hoàn tác.
+        {% trans "Hành động này không thể hoàn tác." %}
     </p>
-    
     <form method="post" style="margin-top: 2rem;">
         {% csrf_token %}
         <div style="display: flex; justify-content: center; gap: 1rem;">
-            <a href="{{ request.META.HTTP_REFERER|default:request.get_full_path }}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Hủy bỏ</a>
-            <button type="submit" class="btn" style="background-color: var(--error); color: white;">Vâng, Xóa!</button>
+            <a href="{{ request.META.HTTP_REFERER|default:request.get_full_path }}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Hủy bỏ" %}</a>
+            <button type="submit" class="btn" style="background-color: var(--error); color: white;">{% trans "Vâng, Xóa!" %}</button>
         </div>
     </form>
 </div>

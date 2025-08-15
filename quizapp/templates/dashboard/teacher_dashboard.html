@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Bảng điều khiển Giáo viên{% endblock %}
+{% block title %}{% trans "Bảng điều khiển Giáo viên" %}{% endblock %}
 
 {% block content %}
 <style>
@@ -48,20 +49,11 @@
         padding: 0.5rem 1rem;
         border-radius: 0.5rem;
     }
-    .exam-code {
-        font-family: monospace;
-        font-size: 0.9em;
-        background-color: var(--bg-primary);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        border: 1px solid var(--border);
-        color: var(--accent);
-    }
 </style>
 
 <div class="dashboard-header">
-    <h2>Các bài thi của bạn</h2>
-    <a href="{% url 'exam_create' %}" class="btn btn-cta">Tạo bài thi mới</a>
+    <h2>{% trans "Các bài thi của bạn" %}</h2>
+    <a href="{% url 'exam_create' %}" class="btn btn-cta">{% trans "Tạo bài thi mới" %}</a>
 </div>
 
 <div class="exam-list">
@@ -69,19 +61,16 @@
         <div class="exam-item">
             <div class="exam-info">
                 <h3>{{ exam.title }}</h3>
-                <small>
-                    Mã bài thi: <span class="exam-code">{{ exam.code }}</span> | 
-                    {{ exam.get_subject_display }} | {{ exam.duration_minutes }} phút
-                </small>
+                <small>{{ exam.get_subject_display }} | {{ exam.duration_minutes }} {% trans "phút" %} | {% if exam.is_custom %}{% trans "Tùy chỉnh" %}{% else %}{% trans "Cấu trúc chuẩn" %}{% endif %}</small>
             </div>
             <div class="exam-actions">
-                <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn btn-primary">Quản lý</a>
-                <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Sửa</a>
-                <a href="{% url 'exam_delete' pk=exam.pk %}" class="btn" style="background-color: var(--error); color: white;">Xóa</a>
+                <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn btn-primary">{% trans "Quản lý" %}</a>
+                <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Sửa" %}</a>
+                <a href="{% url 'exam_delete' pk=exam.pk %}" class="btn" style="background-color: var(--error); color: white;">{% trans "Xóa" %}</a>
             </div>
         </div>
     {% empty %}
-        <p>Bạn chưa tạo bài thi nào. Hãy bắt đầu ngay!</p>
+        <p>{% trans "Bạn chưa tạo bài thi nào. Hãy bắt đầu ngay!" %}</p>
     {% endfor %}
 </div>
 {% endblock %}

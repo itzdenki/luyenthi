@@ -1,368 +1,139 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="vi">
-{% load static %}
-
+<html lang="{{ request.LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Luyện Thi{% endblock %}</title>
-    <meta name="description"
-        content="{% block description %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh, theo dõi tiến độ học tập hiệu quả.{% endblock %}">
-    <meta name="keywords"
-        content="luyện thi, trắc nghiệm, azota, django, online test, đánh giá tư duy, tsa, thpt quốc gia">
+    <!-- Meta Tags cho SEO và Mạng xã hội -->
+    <title>{% block title %}{% trans "Luyện Thi Pro" %}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{% trans "Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh, theo dõi tiến độ học tập hiệu quả." %}{% endblock %}">
+    <meta name="keywords" content="{% trans 'luyện thi, trắc nghiệm, azota, django, online test, đánh giá tư duy, tsa, thpt quốc gia' %}">
 
-    <!-- Open Graph Tags (cho Facebook, Zalo, Messenger...) -->
-    <meta property="og:title" content="{% block og_title %}{% block title_og %}{% endblock %}Luyện Thi{% endblock %}">
-    <meta property="og:description"
-        content="{% block og_description %}{% block description_og %}{% endblock %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh.{% endblock %}">
-    <meta property="og:image"
-        content="{% block og_image %}https://placehold.co/1200x630/3B82F6/FFFFFF?text=LuyenThi{% endblock %}">
+    <!-- Open Graph Tags (Facebook, Zalo...) -->
+    <meta property="og:title" content="{% block og_title %}{% block title_og %}{% endblock %}{% trans 'Luyện Thi Pro' %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% block description_og %}{% endblock %}{% trans 'Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh.' %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://i.postimg.cc/9fV6g5nS/logo-onthi.png{% endblock %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="vi_VN">
-
-    <!-- Twitter Card Tags (cho Twitter) -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title"
-        content="{% block twitter_title %}{% block title_twitter %}{% endblock %}Luyện Thi{% endblock %}">
-    <meta name="twitter:description"
-        content="{% block twitter_description %}{% block description_twitter %}{% endblock %}Nền tảng luyện thi thông minh, tạo đề thi theo cấu trúc chuẩn và tùy chỉnh.{% endblock %}">
-    <meta name="twitter:image"
-        content="{% block twitter_image %}https://placehold.co/1200x630/3B82F6/FFFFFF?text=LuyenThi{% endblock %}">
+    <meta property="og:locale" content="{{ request.LANGUAGE_CODE }}_{{ request.LANGUAGE_CODE|upper }}">
 
     <style>
-        /* --- Bảng màu và Cấu hình Giao diện --- */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-            /* Bảng màu cho Chế độ Sáng (Light Mode) */
-            --bg-primary: #F9FAFB;
-            --bg-surface: #FFFFFF;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --accent: #3B82F6;
-            --cta: #F97316;
-            --border: #E5E7EB;
-            --error: #DC2626;
-            --success: #10B981;
+            --bg-primary: #F9FAFB; --bg-surface: #FFFFFF; --text-primary: #1F2937; --text-secondary: #6B7280;
+            --accent: #3B82F6; --cta: #F97316; --border: #E5E7EB; --error: #DC2626; --success: #10B981;
         }
-
         html[data-theme='dark'] {
-            /* Bảng màu cho Chế độ Tối (Dark Mode) */
-            --bg-primary: #1E1E2F;
-            --bg-surface: #2B2E3B;
-            --text-primary: #F3F4F6;
-            --text-secondary: #A1A1AA;
-            --accent: #60A5FA;
-            --cta: #FDBA74;
-            --border: #3B3E4D;
-            --error: #F87171;
-            --success: #6EE7B7;
+            --bg-primary: #1E1E2F; --bg-surface: #2B2E3B; --text-primary: #F3F4F6; --text-secondary: #A1A1AA;
+            --accent: #60A5FA; --cta: #FDBA74; --border: #3B3E4D; --error: #F87171; --success: #6EE7B7;
         }
-
-        /* --- Các Style chung --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* --- Thanh điều hướng --- */
-        nav {
-            background-color: var(--bg-surface);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        /* CẬP NHẬT CSS CHO LOGO */
-        nav .logo a {
-            color: var(--text-primary);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.5rem;
-            display: flex; /* Bật flexbox */
-            align-items: center; /* Căn giữa theo chiều dọc */
-            gap: 0.75rem; /* Khoảng cách giữa logo và chữ */
-        }
-        nav .logo img {
-            height: 40px; /* Chiều cao của logo */
-        }
-
-        nav .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        nav .nav-links a,
-        nav .nav-links span {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        nav .nav-links a:hover {
-            color: var(--accent);
-        }
-
-        nav .nav-links .button {
-            background-color: var(--cta);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-        }
-
-        nav .nav-links .button:hover {
-            color: white;
-            opacity: 0.9;
-        }
-
-        /* --- Nội dung chính --- */
-        .main-content {
-            max-width: 1024px;
-            margin: 2rem auto;
-            padding: 2rem;
-        }
-
-        /* --- Giao diện Form --- */
-        .form-wrapper {
-            background-color: var(--bg-surface);
-            padding: 2rem;
-            border-radius: 0.75rem;
-            max-width: 500px;
-            margin: auto;
-            border: 1px solid var(--border);
-        }
-
-        .form-wrapper h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        .form-field {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-field label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--bg-primary);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-
-        .form-field input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--accent-translucent, rgba(59, 130, 246, 0.2));
-        }
-
-        /* --- Nút bấm --- */
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background-color: var(--accent);
-            color: white;
-        }
-
-        .btn-cta {
-            background-color: var(--cta);
-            color: white;
-        }
-
-        /* --- Dark Mode Toggle --- */
-        .theme-switch-wrapper {
-            display: flex;
-            align-items: center;
-        }
-
-        .theme-switch {
-            display: inline-block;
-            height: 24px;
-            position: relative;
-            width: 44px;
-        }
-
-        .theme-switch input {
-            display: none;
-        }
-
-        .slider {
-            background-color: #ccc;
-            bottom: 0;
-            cursor: pointer;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            background-color: #fff;
-            bottom: 4px;
-            content: "";
-            height: 16px;
-            left: 4px;
-            position: absolute;
-            transition: .4s;
-            width: 16px;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--accent);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(20px);
-        }
-
-        /* User */
-        .user-menu {
-            position: relative;
-            display: inline-block;
-        }
-        .username-display {
-            cursor: pointer;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: var(--bg-surface);
-            min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
-            z-index: 1;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border);
-            right: 0;
-            margin-top: 0.5rem;
-        }
-        .dropdown-content a, .dropdown-content button {
-            color: var(--text-secondary);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-family: var(--font-sans);
-        }
-        .dropdown-content a:hover, .dropdown-content button:hover {
-            background-color: var(--bg-primary);
-            color: var(--accent);
-        }
-        .user-menu:hover .dropdown-content {
-            display: block;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        nav { background-color: var(--bg-surface); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        nav .logo a { color: var(--text-primary); text-decoration: none; font-weight: bold; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+        nav .logo img { height: 40px; }
+        nav .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+        nav .nav-links a, nav .nav-links span { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        nav .nav-links a:hover { color: var(--accent); }
+        nav .nav-links .button { background-color: var(--cta); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; }
+        nav .nav-links .button:hover { color: white; opacity: 0.9; }
+        .main-content { max-width: 1024px; margin: 2rem auto; padding: 2rem; }
+        .form-wrapper { background-color: var(--bg-surface); padding: 2rem; border-radius: 0.75rem; max-width: 500px; margin: auto; border: 1px solid var(--border); }
+        .form-wrapper h2 { text-align: center; margin-bottom: 1.5rem; color: var(--text-primary); }
+        .form-field { margin-bottom: 1.25rem; }
+        .form-field label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); }
+        .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 0.75rem; background-color: var(--bg-primary); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-primary); font-size: 1rem; }
+        .form-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-translucent, rgba(59, 130, 246, 0.2)); }
+        .btn { display: inline-block; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; transition: transform 0.2s, opacity 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background-color: var(--accent); color: white; }
+        .btn-cta { background-color: var(--cta); color: white; }
+        .user-menu { position: relative; display: inline-block; }
+        .username-display { cursor: pointer; color: var(--text-primary); font-weight: 500; }
+        .dropdown-content { display: none; position: absolute; background-color: var(--bg-surface); min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 1; border-radius: 0.5rem; border: 1px solid var(--border); right: 0; margin-top: 0.5rem; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out; }
+        .dropdown-content.show { display: block; opacity: 1; transform: translateY(0); }
+        .dropdown-content a, .dropdown-content button { color: var(--text-secondary); padding: 12px 16px; text-decoration: none; display: block; width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-size: 1rem; font-family: var(--font-sans); }
+        .dropdown-content a:hover, .dropdown-content button:hover { background-color: var(--bg-primary); color: var(--accent); }
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 44px; }
+        .theme-switch input { display:none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: #fff; bottom: 4px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-
 <body>
     <nav>
         <div class="logo">
             <a href="{% url 'home' %}">
-                <!-- Sửa lại đường dẫn src ở đây -->
-                <img src="https://i.postimg.cc/9fV6g5nS/logo-onthi.png">
-                <span>LuyệnThi</span>
+                <img src="https://i.postimg.cc/9fV6g5nS/logo-onthi.png" alt="Luyện Thi Logo">
+                <span>{% trans "LuyệnThi" %}</span>
             </a>
         </div>
         <div class="nav-links">
-        {% if user.is_authenticated %}
-            {% if user.role == 'TEACHER' %}
-                <a href="{% url 'teacher_dashboard' %}">Bảng điều khiển</a>
-            {% elif user.role == 'STUDENT' %}
-                <a href="{% url 'student_exam_list' %}">Danh sách bài thi</a>
-                <a href="{% url 'student_result_history' %}">Lịch sử</a>
-            {% endif %}
-
-            <div class="user-menu">
-                <span class="username-display">Chào, {{ user.first_name|default:user.username }} &#9662;</span>
-                <div class="dropdown-content">
-                    <a href="{% url 'account_info' %}">Thông tin tài khoản</a>
-                    <form action="{% url 'logout' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit">Đăng xuất</button>
-                    </form>
+            {% if user.is_authenticated %}
+                {% if user.role == 'TEACHER' %}
+                    <a href="{% url 'teacher_dashboard' %}">{% trans "Bảng điều khiển" %}</a>
+                {% elif user.role == 'STUDENT' %}
+                    <a href="{% url 'student_exam_list' %}">{% trans "Danh sách bài thi" %}</a>
+                    <a href="{% url 'student_result_history' %}">{% trans "Lịch sử" %}</a>
+                {% endif %}
+                <div class="user-menu">
+                    <span class="username-display">{% trans "Chào" %}, {{ user.first_name|default:user.username }} &#9662;</span>
+                    <div class="dropdown-content">
+                        <a href="{% url 'account_info' %}">{% trans "Thông tin tài khoản" %}</a>
+                        <form action="{% url 'logout' %}" method="post" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit">{% trans "Đăng xuất" %}</button>
+                        </form>
+                    </div>
                 </div>
+            {% else %}
+                <a href="{% url 'login' %}">{% trans "Đăng nhập" %}</a>
+                <a href="{% url 'register' %}" class="button">{% trans "Đăng ký" %}</a>
+            {% endif %}
+            <div class="language-switcher">
+                <!-- SỬA LỖI: action trỏ đến URL mới và input 'next' lấy đường dẫn đầy đủ -->
+                <form action="{% url 'set_language' %}" method="post" id="language-form">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <select name="language" id="language-select" onchange="this.form.submit()">
+                        {% get_current_language as CURRENT_LANGUAGE %}
+                        {% get_available_languages as AVAILABLE_LANGUAGES %}
+                        {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
+                            <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                {{ lang_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
             </div>
-        {% else %}
-            <a href="{% url 'login' %}">Đăng nhập</a>
-            <a href="{% url 'register' %}" class="button">Đăng ký</a>
-        {% endif %}
-        
-        <div class="theme-switch-wrapper">
-        <label class="theme-switch" for="checkbox">
-            <input type="checkbox" id="checkbox" />
-            <div class="slider round"></div>
-        </label>
+            <div class="theme-switch-wrapper">
+              <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider round"></div>
+              </label>
+            </div>
         </div>
-    </div>
     </nav>
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
-
     <script>
         const themeToggle = document.getElementById('checkbox');
         const currentTheme = localStorage.getItem('theme');
-
-        // Áp dụng theme đã lưu khi tải trang
         if (currentTheme) {
             document.documentElement.setAttribute('data-theme', currentTheme);
             if (currentTheme === 'dark') {
                 themeToggle.checked = true;
             }
         }
-
         function switchTheme(e) {
             if (e.target.checked) {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -370,44 +141,25 @@
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-            }
+            }    
         }
-
         themeToggle.addEventListener('change', switchTheme, false);
-
-        (function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const userMenu = document.querySelector('.user-menu');
-            if (!userMenu) return;
-
-            const dropdown = userMenu.querySelector('.dropdown-content');
-            let hideTimer;
-
-            const startHideTimer = () => {
-            // reset trạng thái nếu trước đó bị ẩn bằng inline-style
-            dropdown.style.display = '';
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                // dùng inline-style để ép ẩn ngay cả khi đang :hover
-                dropdown.style.display = 'none';
-            }, 5000);
-            };
-
-            const cancelHideTimer = () => {
-            clearTimeout(hideTimer);
-            // bỏ inline-style để quay về logic hiển thị mặc định bằng :hover
-            dropdown.style.display = '';
-            };
-
-            // Khi rê chuột vào menu user: bắt đầu đếm 5s
-            userMenu.addEventListener('mouseenter', startHideTimer);
-            // Khi rời chuột: hủy ẩn tự động và trả về bình thường
-            userMenu.addEventListener('mouseleave', cancelHideTimer);
-
-            // Hỗ trợ cả focus bằng bàn phím
-            userMenu.addEventListener('focusin', startHideTimer);
-            userMenu.addEventListener('focusout', cancelHideTimer);
-        })();
+            const dropdown = document.querySelector('.dropdown-content');
+            let hideTimeout;
+            if (userMenu && dropdown) {
+                userMenu.addEventListener('mouseenter', function() {
+                    clearTimeout(hideTimeout);
+                    dropdown.classList.add('show');
+                });
+                userMenu.addEventListener('mouseleave', function() {
+                    hideTimeout = setTimeout(function() {
+                        dropdown.classList.remove('show');
+                    }, 5000);
+                });
+            }
+        });
     </script>
 </body>
-
 </html>

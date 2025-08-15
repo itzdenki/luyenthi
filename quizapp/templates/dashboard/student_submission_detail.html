@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% trans "Kết quả bài thi" %}{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 {% block content %}
 <style>
     .result-wrapper { background-color: var(--bg-surface); padding: 2rem; border-radius: 0.75rem; text-align: center; border: 1px solid var(--border); }
-    .score-display { font-size: 4rem; font-weight: 800; color: var(--success); margin-bottom: 2rem; }
-    .answer-review-container { margin-top: 2rem; text-align: left; display: none; }
+    .answer-review-container { margin-top: 2rem; text-align: left; }
     .review-question-box { background-color: var(--bg-primary); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border); }
     .review-choice-item { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.25rem; border-left: 4px solid transparent; }
     .correct-answer { border-left-color: var(--success); background-color: rgba(16, 185, 129, 0.1); }
@@ -13,19 +12,16 @@
     .passage-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); line-height: 1.7; }
 </style>
 <div class="result-wrapper">
-    <h2>{% trans "Kết quả bài thi" %}: {{ result.exam.title }}</h2>
-    <p class="details">{% trans "Bạn đã hoàn thành bài thi vào lúc" %} {{ result.submitted_at|date:"H:i, d/m/Y" }}</p>
-    <p>{% trans "Điểm số của bạn là" %}:</p>
+    <h2>{{ page_title }}</h2>
+    <p class="details">{% trans "Bài thi" %}: {{ result.exam.title }} | {% trans "Nộp lúc" %}: {{ result.submitted_at|date:"H:i, d/m/Y" }}</p>
+    <p>{% trans "Điểm số" %}:</p>
     <p class="score-display">{{ result.score|floatformat:2 }}</p>
-    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
-        <a href="{% url 'student_exam_list' %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Làm bài khác" %}</a>
-        <button id="toggle-answers-btn" class="btn btn-primary">{% trans "Xem đáp án" %}</button>
-    </div>
+    <a href="{% url 'exam_result_history' pk=result.exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">&larr; {% trans "Quay lại Lịch sử" %}</a>
 </div>
-<div class="answer-review-container" id="answer-review-container">
+<div class="answer-review-container">
     <h2 style="margin-bottom: 2rem; text-align: center;">{% trans "Đáp án chi tiết" %}</h2>
-    {% macro render_review(question, counter) %}
-        <h4>{% trans "Câu" %} {{ counter }}: {{ question.text|safe }}</h4>
+    {% macro render_review(question) %}
+        <h4>{% trans "Câu" %} {{ forloop.counter }}: {{ question.text|safe }}</h4>
         <div style="margin-top: 1rem;">
             {% for choice in question.choices.all %}
                 {% with choice_id_str=choice.id|stringformat:"s" %}
@@ -43,26 +39,11 @@
             <p>{{ passage.content|safe|linebreaks }}</p>
         </div>
         {% for question in passage.related_questions %}
-            <div class="review-question-box">{{ render_review(question, forloop.parentloop.counter|add:forloop.counter0) }}</div>
+            <div class="review-question-box">{{ render_review(question) }}</div>
         {% endfor %}
     {% endfor %}
     {% for question in non_passage_questions %}
-        <div class="review-question-box">{{ render_review(question, forloop.counter) }}</div>
+        <div class="review-question-box">{{ render_review(question) }}</div>
     {% endfor %}
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.getElementById('toggle-answers-btn');
-        const reviewContainer = document.getElementById('answer-review-container');
-        toggleBtn.addEventListener('click', function() {
-            if (reviewContainer.style.display === 'none' || reviewContainer.style.display === '') {
-                reviewContainer.style.display = 'block';
-                toggleBtn.textContent = '{% trans "Ẩn đáp án" %}';
-            } else {
-                reviewContainer.style.display = 'none';
-                toggleBtn.textContent = '{% trans "Xem đáp án" %}';
-            }
-        });
-    });
-</script>
 {% endblock %}

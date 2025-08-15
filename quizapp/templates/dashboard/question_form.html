@@ -1,73 +1,45 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
 <style>
     .form-wrapper { max-width: 800px; }
-    .formset-wrapper {
-        margin-top: 2rem;
-        padding: 1.5rem;
-        border: 1px solid var(--border);
-        border-radius: 0.75rem;
-        display: none; /* Ẩn ban đầu */
-    }
-    .formset-form-row {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border);
-    }
+    .formset-wrapper { margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: 0.75rem; display: none; }
+    .formset-form-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
     .formset-form-row:last-child { border-bottom: none; }
     .formset-form-row .form-field { flex-grow: 1; }
-    .btn-delete-form {
-        background:var(--error);
-        color:white;
-        border-radius:50%;
-        width:30px;
-        height:30px;
-        border:none;
-        cursor:pointer;
-        font-weight: bold;
-        flex-shrink: 0;
-    }
+    .btn-delete-form { background:var(--error); color:white; border-radius:50%; width:30px; height:30px; border:none; cursor:pointer; font-weight: bold; flex-shrink: 0; }
 </style>
-
 <div class="form-wrapper">
     <h2>{{ page_title }}</h2>
     <p style="text-align: center; margin-top: -1rem; margin-bottom: 2rem; color: var(--text-secondary);">
-        Bài thi: <strong>{{ exam.title }}</strong>
+        {% trans "Bài thi" %}: <strong>{{ exam.title }}</strong>
     </p>
-
     <form method="post">
         {% csrf_token %}
         <div class="form-field">{{ form.text.label_tag }} {{ form.text }}</div>
         <div class="form-field">{{ form.question_type.label_tag }} {{ form.question_type }}</div>
         <div class="form-field">{{ form.order.label_tag }} {{ form.order }}</div>
         <div class="form-field">{{ form.passage.label_tag }} {{ form.passage }}</div>
-
-        <!-- Formset cho Choices -->
         <div id="choices-formset-wrapper" class="formset-wrapper">
-            <h4>Các lựa chọn / Đáp án</h4>
+            <h4>{% trans "Các lựa chọn / Đáp án" %}</h4>
             {{ choice_formset.management_form }}
             <div id="choices-forms-container">
                 {% for form in choice_formset %}
                     <div class="formset-form-row">
                         {{ form.id }}
                         <div class="form-field">{{ form.text }}</div>
-                        <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;">{{ form.is_correct }} <label for="{{ form.is_correct.id_for_label }}">Đúng?</label></div>
+                        <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;">{{ form.is_correct }} <label for="{{ form.is_correct.id_for_label }}">{% trans "Đúng?" %}</label></div>
                         {% if form.instance.pk and choice_formset.can_delete %}
-                            <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;" title="Đánh dấu để xóa khi lưu">{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Xóa?</label></div>
+                            <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;" title="{% trans 'Đánh dấu để xóa khi lưu' %}">{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">{% trans "Xóa?" %}</label></div>
                         {% endif %}
                     </div>
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-primary" data-formset-prefix="choices" style="margin-top: 1rem;">Thêm lựa chọn</button>
+            <button type="button" class="btn btn-primary" data-formset-prefix="choices" style="margin-top: 1rem;">{% trans "Thêm lựa chọn" %}</button>
         </div>
-
-        <!-- Formset cho MatchPairs -->
         <div id="matches-formset-wrapper" class="formset-wrapper">
-            <h4>Các cặp để ghép</h4>
+            <h4>{% trans "Các cặp để ghép" %}</h4>
             {{ match_formset.management_form }}
             <div id="matches-forms-container">
                 {% for form in match_formset %}
@@ -76,26 +48,23 @@
                         <div class="form-field">{{ form.prompt }}</div>
                         <div class="form-field">{{ form.answer }}</div>
                         {% if form.instance.pk and match_formset.can_delete %}
-                             <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;" title="Đánh dấu để xóa khi lưu">{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Xóa?</label></div>
+                             <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;" title="{% trans 'Đánh dấu để xóa khi lưu' %}">{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">{% trans "Xóa?" %}</label></div>
                         {% endif %}
                     </div>
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-primary" data-formset-prefix="matches" style="margin-top: 1rem;">Thêm cặp</button>
+            <button type="button" class="btn btn-primary" data-formset-prefix="matches" style="margin-top: 1rem;">{% trans "Thêm cặp" %}</button>
         </div>
-
         <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
-            <a href="{{ request.META.HTTP_REFERER|default:request.get_full_path }}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">Hủy bỏ</a>
-            <button type="submit" class="btn btn-cta">Lưu câu hỏi</button>
+            <a href="{{ request.META.HTTP_REFERER|default:request.get_full_path }}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Hủy bỏ" %}</a>
+            <button type="submit" class="btn btn-cta">{% trans "Lưu câu hỏi" %}</button>
         </div>
     </form>
 </div>
-
-<!-- Templates trống cho JavaScript -->
 <template id="empty-form-choices">
     <div class="formset-form-row">
         <div class="form-field">{{ choice_formset.empty_form.text }}</div>
-        <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;">{{ choice_formset.empty_form.is_correct }} <label for="id_choices-__prefix__-is_correct">Đúng?</label></div>
+        <div class="form-field" style="flex-grow: 0; display: flex; align-items: center; gap: 5px;">{{ choice_formset.empty_form.is_correct }} <label for="id_choices-__prefix__-is_correct">{% trans "Đúng?" %}</label></div>
         <button type="button" class="btn-delete-form">&times;</button>
     </div>
 </template>
