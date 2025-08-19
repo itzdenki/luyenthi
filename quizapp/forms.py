@@ -61,6 +61,9 @@ class QuestionForm(forms.ModelForm):
 class ExamCodeForm(forms.Form):
     code = forms.CharField(label="", max_length=8, widget=forms.TextInput(attrs={'placeholder': _('Nhập mã bài thi tại đây...'), 'style': 'text-transform: uppercase;'}))
 
+class JsonImportForm(forms.Form):
+    json_file = forms.FileField(label=_("Chọn file .json"))
+    
 ChoiceFormSet = inlineformset_factory(Question, Choice, fields=('text', 'is_correct'), extra=1, can_delete=True, widgets={'text': forms.TextInput(attrs={'class': 'form-control'})})
 MatchPairFormSet = inlineformset_factory(Question, MatchPair, fields=('prompt', 'answer'), extra=1, can_delete=True, widgets={'prompt': forms.TextInput(attrs={'class': 'form-control'}), 'answer': forms.TextInput(attrs={'class': 'form-control'})})
 ExamSectionFormSet = inlineformset_factory(Exam, ExamSection, fields=('title', 'question_type', 'question_count', 'points_per_question', 'order'), extra=1, can_delete=True, widgets={'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Tiêu đề phần, ví dụ: Trắc nghiệm')}), 'question_type': forms.Select(attrs={'class': 'form-control'}), 'question_count': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}), 'points_per_question': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.05', 'min': '0'}), 'order': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'})})

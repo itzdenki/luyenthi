@@ -23,6 +23,7 @@ urlpatterns = [
     path('dashboard/exam/question/<int:pk>/delete/', views.QuestionDeleteView.as_view(), name='question_delete'),
     path('dashboard/exam/<int:pk>/history/', views.ExamResultHistoryView.as_view(), name='exam_result_history'),
     path('dashboard/result/<int:pk>/view/', views.teacher_result_detail, name='teacher_result_detail'),
+    path('dashboard/exam/<int:pk>/import/', views.import_questions_from_json, name='import_questions'),
 
     # Student Exam Flow
     path('exams/', views.StudentExamListView.as_view(), name='student_exam_list'),

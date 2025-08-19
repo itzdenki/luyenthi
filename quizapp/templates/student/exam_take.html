@@ -2,68 +2,173 @@
 {% load i18n %}
 
 {% block title %}{% trans "Làm bài" %}: {{ exam.title }}{% endblock %}
-{% block description %}{{ exam.description|default:_("Làm bài thi ngay trên Luyện Thi Pro!")|truncatewords:25 }}{% endblock %}
-{% block og_title %}{{ exam.title }} - {% trans "Luyện Thi Pro" %}{% endblock %}
-{% block og_description %}{{ exam.description|default:_("Làm bài thi ngay trên Luyện Thi Pro!")|truncatewords:25 }}{% endblock %}
 
 {% block content %}
 <style>
-    .exam-header { background-color: var(--bg-surface); padding: 1rem 1.5rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border: 1px solid var(--border); }
-    #timer { font-size: 1.5em; font-weight: bold; color: var(--error); }
-    .question-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); }
-    .question-text { margin-bottom: 1.5rem; line-height: 1.6; }
-    .choice-item { margin-bottom: 1rem; }
-    .choice-item label { margin-left: 0.5rem; }
-    .fill-in-blank-input { width: 50%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
-    .true-false-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .true-false-item:last-child { border-bottom: none; }
-    .true-false-options { display: flex; gap: 20px; }
-    .matching-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .matching-prompt { padding: 10px; background-color: var(--bg-primary); border-radius: 4px; }
-    .matching-select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background-color: var(--bg-primary); color: var(--text-primary); }
-    .passage-box { background-color: var(--bg-surface); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid var(--border); line-height: 1.7; }
+    /* Ẩn thanh điều hướng mặc định và footer của base.html */
+    nav {
+        display: none !important;
+    }
+    .main-content {
+        padding: 0;
+        max-width: 100%;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    body {
+        overflow-y: hidden; /* Ngăn cuộn trang chính */
+    }
+    .exam-layout {
+        display: flex;
+        flex-grow: 1;
+        overflow: hidden; /* Ngăn cuộn ở cấp layout */
+    }
+    .question-panel, .sidebar-panel {
+        overflow-y: auto;
+        padding: 1.5rem;
+        height: 100%;
+    }
+    .question-panel {
+        flex: 3; /* Chiếm 3/4 không gian */
+    }
+    .sidebar-panel {
+        flex: 1; /* Chiếm 1/4 không gian */
+        background-color: var(--bg-surface);
+        border-left: 1px solid var(--border);
+    }
+    .exam-fixed-header {
+        background-color: var(--bg-surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 1.5rem;
+        z-index: 1000;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .header-info h2 {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+    .timer-box {
+        text-align: center;
+        padding: 1rem;
+        background-color: var(--bg-primary);
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    #timer {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--accent);
+    }
+    .question-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .question-nav-bubble {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .question-nav-bubble:hover {
+        border-color: var(--accent);
+    }
+    .question-nav-bubble.answered {
+        background-color: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+    .question-box {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .question-box:last-child {
+        border-bottom: none;
+    }
+    .choice-item { 
+        margin-bottom: 1rem; 
+        display: block;
+    }
+    .choice-item label { 
+        margin-left: 0.5rem; 
+    }
 </style>
 
-<div class="exam-header">
-    <div>
+<div class="exam-fixed-header">
+    <div class="header-info">
+        <a href="{% url 'student_exam_list' %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Thoát" %}</a>
         <h2>{{ exam.title }}</h2>
-        <p style="color: var(--text-secondary);">{% trans "Hãy đọc kỹ và chọn đáp án chính xác nhất." %}</p>
     </div>
-    <div id="timer">--:--</div>
 </div>
 
-<form method="post">
-    {% csrf_token %}
-    
-    {% for passage in passages %}
-        <div class="passage-box">
-            <h4>{{ passage.title }}</h4>
-            <p>{{ passage.content|safe|linebreaks }}</p>
+<div class="exam-layout">
+    <div class="question-panel">
+        <form method="post" id="exam-form">
+            {% csrf_token %}
+            {% for question in all_questions %}
+                 <div class="question-box" id="q-box-{{ forloop.counter }}">
+                    <h4 class="question-text">{% trans "Câu" %} {{ forloop.counter }}: {{ question.text|safe }}</h4>
+                    {% for choice in question.choices.all %}
+                    <div class="choice-item">
+                        <input type="radio" name="question{{ question.id }}" id="choice{{ choice.id }}" value="{{ choice.id }}" data-question-index="{{ forloop.parentloop.counter }}" required>
+                        <label for="choice{{ choice.id }}">{{ choice.text|safe }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </form>
+    </div>
+
+    <div class="sidebar-panel">
+        <div class="timer-box">
+            <div style="color: var(--text-secondary); margin-bottom: 0.5rem;">{% trans "Thời gian còn lại" %}</div>
+            <div id="timer">--:--</div>
         </div>
-        {% for question in passage.related_questions %}
-            <div class="question-box">
-                {% include 'student/_question_snippet.html' with question=question counter=forloop.parentloop.counter|add:forloop.counter0 %}
+        
+        <div>
+            <h4>{% trans "Phần 1: Trắc nghiệm" %}</h4>
+            <div class="question-nav-grid">
+                {% for question in all_questions %}
+                    <a href="#q-box-{{ forloop.counter }}" class="question-nav-bubble" id="q-nav-{{ forloop.counter }}">{{ forloop.counter }}</a>
+                {% endfor %}
             </div>
-        {% endfor %}
-    {% endfor %}
-
-    {% for question in non_passage_questions %}
-        <div class="question-box">
-            {% include 'student/_question_snippet.html' with question=question counter=forloop.counter %}
         </div>
-    {% endfor %}
 
-    <button type="submit" class="btn btn-cta" style="padding: 0.75rem 2rem; font-size: 1.1rem;">{% trans "Nộp bài" %}</button>
-</form>
+        <button type="submit" form="exam-form" class="btn btn-cta" style="width: 100%; margin-top: 2rem; padding: 1rem;">{% trans "Nộp bài" %}</button>
+    </div>
+</div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Logic đồng hồ đếm ngược
     const timerDisplay = document.getElementById('timer');
     let timeLeft = {{ duration_seconds|default:3000 }};
     const countdown = setInterval(function() {
         if (timeLeft <= 0) {
             clearInterval(countdown);
             timerDisplay.textContent = "{% trans 'Hết giờ!' %}";
-            document.querySelector('form').submit();
+            document.getElementById('exam-form').submit();
         } else {
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
@@ -71,5 +176,36 @@
             timeLeft--;
         }
     }, 1000);
+
+    // Logic cập nhật trạng thái câu hỏi trong thanh điều hướng
+    const inputs = document.querySelectorAll('.question-panel input[type="radio"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const questionIndex = this.dataset.questionIndex;
+            const navBubble = document.getElementById(`q-nav-${questionIndex}`);
+            if (navBubble) {
+                navBubble.classList.add('answered');
+            }
+        });
+    });
+
+    // Logic cuộn mượt đến câu hỏi
+    const navLinks = document.querySelectorAll('.question-nav-bubble');
+    const questionPanel = document.querySelector('.question-panel');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                questionPanel.scrollTo({
+                    top: targetElement.offsetTop - 20, // Thêm khoảng đệm
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<style>
+    .import-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+    }
+    .instructions {
+        background-color: var(--bg-surface);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+    }
+    .instructions pre {
+        background-color: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.875rem;
+    }
+    @media (max-width: 768px) {
+        .import-container { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2>{{ page_title }}</h2>
+        <p style="color: var(--text-secondary);">{% trans "Tải lên file .json chứa danh sách các câu hỏi cho bài thi:" %} <strong>{{ exam.title }}</strong></p>
+    </div>
+</div>
+
+<div class="import-container">
+    <div class="form-wrapper" style="max-width: 100%;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-field">
+                <label for="{{ form.json_file.id_for_label }}">{{ form.json_file.label }}</label>
+                {{ form.json_file }}
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <a href="{% url 'exam_detail_teacher' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Hủy bỏ" %}</a>
+                <button type="submit" class="btn btn-cta">{% trans "Bắt đầu Import" %}</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="instructions">
+        <h4>{% trans "Hướng dẫn cấu trúc file JSON" %}</h4>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">{% trans "File của bạn phải là một danh sách (bắt đầu bằng `[` và kết thúc bằng `]`), trong đó mỗi phần tử là một đối tượng câu hỏi." %}</p>
+        <pre><code>
+[
+  {
+    "text": "Nội dung câu hỏi trắc nghiệm?",
+    "question_type": "SINGLE",
+    "order": 1,
+    "choices": [
+      {"text": "Lựa chọn A", "is_correct": false},
+      {"text": "Lựa chọn B", "is_correct": true},
+      {"text": "Lựa chọn C", "is_correct": false}
+    ]
+  },
+  {
+    "text": "Nội dung câu hỏi Đúng/Sai?",
+    "question_type": "TRUE_FALSE",
+    "order": 2,
+    "choices": [
+      {"text": "Mệnh đề 1", "is_correct": true},
+      {"text": "Mệnh đề 2", "is_correct": false}
+    ]
+  },
+  {
+    "text": "Câu hỏi cho ngữ liệu này",
+    "question_type": "SINGLE",
+    "order": 3,
+    "passage_title": "Tiêu đề Ngữ liệu 1",
+    "passage_content": "Nội dung chi tiết của ngữ liệu...",
+    "choices": [...]
+  }
+]
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

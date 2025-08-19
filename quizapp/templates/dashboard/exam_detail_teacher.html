@@ -32,6 +32,7 @@
     </div>
     <div style="display: flex; gap: 0.5rem;">
         <a href="{% url 'exam_result_history' pk=exam.pk %}" class="btn btn-primary">{% trans "Lịch sử nộp bài" %}</a>
+        <a href="{% url 'import_questions' pk=exam.pk %}" class="btn btn-primary">{% trans "Import câu hỏi (.json)" %}</a>
         <a href="{% url 'exam_update' pk=exam.pk %}" class="btn" style="background-color: var(--text-secondary); color: var(--bg-primary);">{% trans "Sửa thông tin" %}</a>
     </div>
 </div>

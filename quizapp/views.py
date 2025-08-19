@@ -10,13 +10,14 @@ from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.utils.translation import gettext as _
 # from django.utils.translation import activate, get_language, LANGUAGE_SESSION_KEY # SỬA LỖI: Thêm import này
 from django.conf import settings
-from .models import Exam, Question, Result, ReadingPassage, User
+from .models import Exam, Question, Result, ReadingPassage, User, MatchPair, Choice
 from .forms import (
     CustomUserCreationForm, ExamForm, QuestionForm, ChoiceFormSet, 
     MatchPairFormSet, ExamSectionFormSet, ReadingPassageForm, ExamCodeForm,
-    UserInfoUpdateForm
+    UserInfoUpdateForm, JsonImportForm
 )
 import random
+import json
 
 # --- VIEW CHUYỂN ĐỔI NGÔN NGỮ ---
 #def set_language(request):
@@ -297,9 +298,11 @@ def start_exam(request, pk):
 @login_required(login_url='login')
 def student_exam_take(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
+    
     if request.method == 'POST':
         final_score = 0.0
-        student_submission = {}
+        student_submission = {} # Dictionary để lưu bài làm của học sinh
+
         # Lấy tất cả câu hỏi một lần để xử lý
         questions = exam.questions.prefetch_related('choices', 'match_pairs').all()
 
@@ -378,16 +381,32 @@ def student_exam_take(request, pk):
                 if all_pairs_correct:
                     final_score += points_map.get(question.question_type, 1.0) if exam.is_custom else 1.0
 
-        result = Result.objects.create(student=request.user, exam=exam, score=final_score, total=exam.questions.count(), submission=student_submission)
+        # Lưu kết quả và bài làm vào database
+        result = Result.objects.create(
+            student=request.user, 
+            exam=exam, 
+            score=final_score, 
+            total=len(questions),
+            submission=student_submission
+        )
         return redirect('student_exam_result', pk=result.pk)
+
+    # --- Xử lý cho GET request ---
+    # Lấy tất cả câu hỏi, đây là biến mà template đang cần
+    all_questions = list(exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('order'))
     
-    all_questions = list(exam.questions.prefetch_related('choices', 'match_pairs').all().order_by('passage__order', 'order'))
-    passages = list(exam.passages.all().order_by('order'))
-    for passage in passages:
-        passage.related_questions = [q for q in all_questions if q.passage_id == passage.id]
-    non_passage_questions = [q for q in all_questions if q.passage_id is None]
+    # Xáo trộn đáp án cho câu hỏi ghép đôi (nếu có)
+    for q in all_questions:
+        if q.question_type == 'MATCHING':
+            answers = list(p.answer for p in q.match_pairs.all())
+            random.shuffle(answers)
+            q.shuffled_answers = answers
     
-    context = {'exam': exam, 'passages': passages, 'non_passage_questions': non_passage_questions, 'duration_seconds': exam.duration_minutes * 60}
+    context = {
+        'exam': exam,
+        'all_questions': all_questions, # Thêm biến này vào context
+        'duration_seconds': exam.duration_minutes * 60,
+    }
     return render(request, 'student/exam_take.html', context)
 
 @login_required(login_url='login')
@@ -549,3 +568,84 @@ def teacher_result_detail(request, pk):
 
     context = {'result': result, 'passages': passages, 'non_passage_questions': non_passage_questions, 'page_title': _("Bài làm của {}").format(result.student.first_name or result.student.username)}
     return render(request, 'dashboard/student_submission_detail.html', context)
+
+@login_required
+@user_passes_test(is_teacher)
+@transaction.atomic
+def import_questions_from_json(request, pk):
+    exam = get_object_or_404(Exam, pk=pk)
+    if exam.owner != request.user:
+        return HttpResponseForbidden(_("Bạn không có quyền truy cập trang này."))
+
+    if request.method == 'POST':
+        form = JsonImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            json_file = request.FILES['json_file']
+            
+            if not json_file.name.endswith('.json'):
+                messages.error(request, ("File không hợp lệ. Vui lòng tải lên file có định dạng .json."))
+                return redirect('import_questions', pk=exam.pk)
+
+            try:
+                # Đảm bảo đọc file với encoding utf-8 để tránh lỗi ký tự
+                data = json.loads(json_file.read().decode('utf-8'))
+                
+                if not isinstance(data, list):
+                    raise TypeError(("File JSON phải chứa một danh sách các câu hỏi."))
+
+                imported_count = 0
+                for item in data:
+                    passage = None
+                    passage_title = item.get('passage_title')
+                    if passage_title:
+                        passage, _ = ReadingPassage.objects.get_or_create(
+                            exam=exam, 
+                            title=passage_title,
+                            defaults={'content': item.get('passage_content', '')}
+                        )
+
+                    question = Question.objects.create(
+                        exam=exam,
+                        text=item['text'],
+                        question_type=item['question_type'],
+                        order=item.get('order', 0),
+                        passage=passage
+                    )
+
+                    if 'choices' in item:
+                        for choice_data in item['choices']:
+                            Choice.objects.create(
+                                question=question,
+                                text=choice_data['text'],
+                                is_correct=choice_data.get('is_correct', False)
+                            )
+                    
+                    if 'match_pairs' in item:
+                        for pair_data in item['match_pairs']:
+                            MatchPair.objects.create(
+                                question=question,
+                                prompt=pair_data['prompt'],
+                                answer=pair_data['answer']
+                            )
+                    
+                    imported_count += 1
+
+                messages.success(request, ("Đã import thành công {} câu hỏi.").format(imported_count))
+                return redirect('exam_detail_teacher', pk=exam.pk)
+
+            except json.JSONDecodeError:
+                messages.error(request, ("File JSON không hợp lệ. Vui lòng kiểm tra lại cấu trúc."))
+            except (KeyError, TypeError) as e:
+                messages.error(request, ("Lỗi định dạng dữ liệu trong file JSON: {}").format(e))
+            except UnicodeDecodeError:
+                messages.error(request, ("File JSON có vấn đề về encoding. Vui lòng lưu file dưới định dạng UTF-8."))
+            
+    else:
+        form = JsonImportForm()
+
+    context = {
+        'form': form,
+        'exam': exam,
+        'page_title': "Import JSON"
+    }
+    return render(request, 'dashboard/import_questions.html', context)
